@@ -654,9 +654,9 @@ hour_pixel := table_width/24
 h := SubStr(A_NowUTC, 9, 2)
 m := SubStr(A_NowUTC,11, 2)
 s := SubStr(A_NowUTC,13, 2)
-; calculate closing in / opening in
-;~ HERE
-;~ MsgBox % h "," m "`n" SubStr(A_Now, 9, 2) "," SubStr(A_Now,11, 2)
+; calculate closing in / opening in status
+if m = 0
+  m = 60
 ; SYDNEY
 sydney_open := 21-h . "h " . 60-m . "m"
 if h >= 21
@@ -928,6 +928,7 @@ F5::
 ExitApp
 F1::
 cal_text := getCalendar(WB_Calendar)
+WB_Home.document.GetElementById("event-watcher").innerHTML = ""
 Loop, parse, cal_text, #
 {
   ;~ MsgBox % A_LoopField
@@ -942,10 +943,13 @@ Loop, parse, cal_text, #
     {
       if !A_LoopField ; skip empty lines
         continue
+      ; Split text to variables
       StringSplit, event_info_, A_LoopField, |
       event_info_date := event_info_1
-      if event_info_2
+      StringReplace, event_info_2, event_info_2, %A_Space%,, all
+      if event_info_2 ; save last run time
         event_info_time := event_info_2
+      event_info_time_mod := even_info_time
       event_info_currency := event_info_3
       event_info_impact := event_info_4
       event_info_impact_img := event_info_5
@@ -954,7 +958,28 @@ Loop, parse, cal_text, #
       event_info_forecast := event_info_8
       event_info_previous := event_info_9
       ;~ MsgBox % A_LoopField
-      WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
+      ; get All Day , Tentative and other type of Time
+      IfNotInString, event_info_time, :
+        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
+      ; get Up coming news only
+      StringRight, ampm, event_info_time, 2
+      if (ampm == "am")
+      {
+        StringTrimRight, time_mod, event_info_time, 2
+        StringSplit, time_, event_info_time, :
+        if time_1 = 12
+          time_1 = 0
+        eventTime := time_1 time_2
+        currTime := A_Hour A_Min
+        ;~ MsgBox "%time_1%" , "%time_2%"
+        if (currTIme < eventTime)
+          WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
+        until_event 
+      }
+      if (ampm == "pm")
+      {
+      }
+      ;~ WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
     }
     ;~ MsgBox % A_LoopField
   data_1 = 
