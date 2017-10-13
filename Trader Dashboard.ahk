@@ -522,6 +522,7 @@ home_html =
           padding: 5px;
           right: 10px;
           bottom: 10px;
+          overflow-y: auto;
         }
 	</style>
 </head>
@@ -619,6 +620,7 @@ GuiControl,, ClockTime, %Display_Hour%:%Display_Minute%:%Display_Second%
 return
 
 home_info:
+; CLOCK & DATE
 If A_WDay = 1
   DOTW = Sunday
 else if A_WDay = 2
@@ -671,7 +673,7 @@ else
 if h >= 20
   london_open := 23+7-h . "h " . 60-m . "m"
 else
-  london_open := 6-h . "h " . 60-n . "m"
+  london_open := 6-h . "h " . 60-m . "m"
 london_close := 15-h . "h " . 60-m . "m"
 ; NEWYORK
 if h >= 20
@@ -709,12 +711,12 @@ x_coord := x_coord + (hour_pixel*3)
 ; offset minutes
 x_coord := x_coord + (hour_pixel/60)*m
 WB_time.document.getElementById("Mark").style.left := x_coord-5
-  WB_Time.document.getElementById("Label").style.left := "11px"
-  WB_Time.document.getElementById("Arrow").style.left := "4px"
-  WB_Time.document.getElementById("Arrow").style.borderTop := "7px solid transparent"
-  WB_Time.document.getElementById("Arrow").style.borderBottom := "7px solid transparent"
-  WB_Time.document.getElementById("Arrow").style.borderLeft := ""
-  WB_Time.document.getElementById("Arrow").style.borderRight := "7px solid black"
+WB_Time.document.getElementById("Label").style.left := "11px"
+WB_Time.document.getElementById("Arrow").style.left := "4px"
+WB_Time.document.getElementById("Arrow").style.borderTop := "7px solid transparent"
+WB_Time.document.getElementById("Arrow").style.borderBottom := "7px solid transparent"
+WB_Time.document.getElementById("Arrow").style.borderLeft := ""
+WB_Time.document.getElementById("Arrow").style.borderRight := "7px solid black"
 if (h >= 17 && h <= 20)
 {
   WB_Time.document.getElementById("Label").style.left := "-115px"
@@ -841,9 +843,9 @@ GetCalendar(WB) {
 	Sleep 50
 	Loop, %calendar_day_0%
 	{
-		if (A_Index <= 3)
+		if (A_Index = 1)
 			continue
-		curr_mod_Index := A_Index - 2
+		curr_mod_Index := A_Index
 		StringReplace, calendar_day_%A_index%, calendar_day_%A_Index%, †, †, UseErrorLevel	
 		event_num := ErrorLevel
 		; numbers of event in the day
@@ -868,6 +870,7 @@ GetCalendar(WB) {
 		}
 		calendar_txt = %calendar_txt%#
 	}
+    WB.Navigate("about:blank")
 	return calendar_txt
 }
 UTC_offset() {
@@ -918,8 +921,42 @@ UTC_offset() {
   ; reverse
   return UTC*-1
 }
-F1::WB_Home.document.GetElementById("notification").innerHTML := "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 300px; height: 20px'>aaaaaaaaaaaaaaaaaa</div>"
+;~ F1::WB_Home.document.GetElementById("notification").innerHTML := "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 300px; height: 20px'>aaaaaaaaaaaaaaaaaa</div>"
 return
 GuiClose:
 F5::
 ExitApp
+F1::
+cal_text := getCalendar(WB_Calendar)
+Loop, parse, cal_text, #
+{
+  ;~ MsgBox % A_LoopField
+  Loop, parse, A_LoopField, `n
+  {
+    StringSplit, data_, A_LoopField, |
+    StringTrimLeft, data_1, data_1, 6
+    break
+  }
+  if (data_1 == A_DD)
+    Loop, parse, A_LoopField, `n
+    {
+      if !A_LoopField ; skip empty lines
+        continue
+      StringSplit, event_info_, A_LoopField, |
+      event_info_date := event_info_1
+      if event_info_2
+        event_info_time := event_info_2
+      event_info_currency := event_info_3
+      event_info_impact := event_info_4
+      event_info_impact_img := event_info_5
+      event_info_title := event_info_6
+      event_info_actual := event_info_7
+      event_info_forecast := event_info_8
+      event_info_previous := event_info_9
+      ;~ MsgBox % A_LoopField
+      WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
+    }
+    ;~ MsgBox % A_LoopField
+  data_1 = 
+}
+;~ MsgBox % getCalendar(WB_Calendar)
