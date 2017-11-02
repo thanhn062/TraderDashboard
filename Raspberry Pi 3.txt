@@ -1,0 +1,30 @@
+Full Set : https://www.eduporium.com/store/index.php/raspberry-pi-3-model-b-starter-kit.html?gclid=Cj0KCQjwvuDPBRDnARIsAGhuAmaqmZR_7dmyAe8XbBLvdFVE898FAqbSZbPCKKkwxMIwvE2-f8XMQLoaAmArEALw_wcB
+- $ 59.99
+- Raspberry Pi 3
+- Transparent case
+- 16GB microSD card
+- 5.25VDC 2.4A power supply
+
+Full Set : https://www.banggood.com/4-In-1-Raspberry-Pi-3-Model-B-V31-Acrylic-Case-Pi-Fan-Aluminum-Heatsink-Set-p-1048293.html?rmmds=buy
+- $ 52.87
+- Raspberry Pi 3
+- Transparent case
+- Heatsink
+-------------------------
+Motherboard - 35$
+https://www.adafruit.com/product/3055
+https://www.raspberrypi.org/products/raspberry-pi-3-model-b/#buy-now-modal
+--------------------------
+Case 
+$ 4.49 - https://www.banggood.com/3x-Heatsinks-Cooling-Fan-Clear-Enclosure-Case-Box-For-Raspberry-Pi-3-Model-b-p-1202373.html?rmmds=buy
+--------------------------
+Heatsink
+--------------------------
+Fan
+--------------------------
+Power Supply
+$ 3.99 - https://www.banggood.com/5V-2_5A-EU-Power-Supply-Micro-USB-AC-Adapter-Charger-For-Raspberry-Pi-3-p-1045780.html?rmmds=search
+--------------------------
+Total - 3.99 + 4.49 + 35+4.05 = 47.53
+9.07+39.05 = 48.12
+64 - 48 = 16$

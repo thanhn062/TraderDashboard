@@ -2,10 +2,12 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
-
-;----- Default Variables
+;	/////////////////////////////////////////////
+;	///														///
+;	///				DEFAULT VARS				///
+;	///														///
+;	////////////////////////////////////////////
 MYAPP_PROTOCOL:="TraDas"
-UTC_offset := UTC_offset()
 Clock_In = 0
 quote_list = 
 (Ltrim
@@ -18,9 +20,11 @@ Keep the risk minimal
 Don't micro manage
 Don't trade emotionally
 )
-;-----------------------------------
-;-----------  GUI ------------------
-;-----------------------------------
+;	/////////////////////////////////////////////
+;	///														///
+;	///				USER INTERFACE				///
+;	///														///
+;	////////////////////////////////////////////
 Gui, Add, MonthCal, x-400 y-90 vMonthCal
 Gui, Add, ActiveX, x-1000 y-500 w1000 h500 vWB_Calendar, Shell.Explorer
 Gui, Add, ActiveX, vWB_Home x10 y10 w600 h247, Shell,Explorer
@@ -31,9 +35,10 @@ WB_Time.Navigate("about:blank")
 WB_Calendar.silent := true
 WB_Home.silent := true
 WB_Time.silent := true
-Sleep 50
-; market hour
-SetTimer, update_market_hour, 1000
+SetTimer, update_market_hour, 
+;	/////////////////////////////////////////////
+;	///			MARKET HOUR HTML			///
+;	////////////////////////////////////////////
 time_html =
 (LTrim Join
 <!DOCTYPE html>
@@ -475,11 +480,11 @@ time_html =
 	</body>
 </html>
 )
-WB_Time.Document.Write(time_html)
 Sleep 50
-Gui, Show, w620 h510 y50, Trader Dashboard ™ - © 2017
-
-;--- Generating Home Page
+WB_Time.Document.Write(time_html)
+;	/////////////////////////////////////////////
+;	///		MAIN HOME PAGE HTML		///
+;	////////////////////////////////////////////
 home_html =
 (Ltrim Join
 <!DOCTYPE html>
@@ -554,45 +559,19 @@ home_html =
 )
 WB_Home.Document.Write(home_html)
 SetTimer, home_info, 1000
+Gui, Show, w620 h510 y50, Trader Dashboard ™ - © 2017
 Sleep 50
 ComObjConnect(WB_Home, WB_Home_events)  ; Connect WB's events to the WB_events class object.
 return
-;------------------------------
-;---------- G-LABEL ----------
-;------------------------------
-; Clock - In
-Clock:
-if Clock_In = 0
-  MsgBox, 262452, Clock In, Do you want to clock in ?
-    IfMsgBox, No
-      return
-Clocktoggle := !Clocktoggle
-if Clocktoggle {
-  Clock_In := true
-  Time_Second = 0
-  Time_Minute = 0
-  Time_Hour = 0
-GuiControl,, Clockin, CLOCK OUT
-GuiControl, -Hidden,ClockTime
-GuiControl, Move, ClockIn, x116 y23 w43 h33
-SetTimer, ClockIn, 1000, On
-}
-else {
-  MsgBox, 262452, Clock Out, Do you want to clock out ?
-  IfMsgBox, Yes
-  {
-    SetTimer, ClockIn, Off
-    Clock_In := false
-    GuiControl, +Hidden, ClockTime
-    GuiControl,, ClockIn, Clock In
-    GuiControl,, ClockTime, 00:00:00
-    GuiControl, Move, ClockIn, x21 y25 w138 h33
-  }
-  else
-    Clocktoggle := !Clocktoggle
-}
-return
-; TIMER - General Info / Clock 
+
+;	/////////////////////////////////////////////
+;	///														///
+;	///					G - LABEL					///
+;	///														///
+;	////////////////////////////////////////////
+;	/////////////////////////////////////////////
+;	///	    	CLOCK - IN SYSTEM      		///
+;	////////////////////////////////////////////
 ClockIn:
 Time_Second++
 if Time_Second >= 60
@@ -616,11 +595,12 @@ If Time_Minute < 10
 If Time_Hour < 10
   Display_Hour = 0%Time_Hour%
 
-GuiControl,, ClockTime, %Display_Hour%:%Display_Minute%:%Display_Second%
+;~ GuiControl,, ClockTime, %Display_Hour%:%Display_Minute%:%Display_Second%
 return
-
+;	/////////////////////////////////////////////
+;	///		CLOCK & DATE UPDATE			///
+;	////////////////////////////////////////////
 home_info:
-; CLOCK & DATE
 If A_WDay = 1
   DOTW = Sunday
 else if A_WDay = 2
@@ -643,9 +623,10 @@ Loop 6
 	WB_Home.document.getElementById("time_display_" . A_Index).innerHTML := home_info_time_%A_Index%
 WB_Home.document.getElementById("currDate").innerHTML := "<a href='" . MYAPP_PROTOCOL . "://toggle/monthcal'>" . DOTW . ", " .  A_MMM .  ", " . A_DD . ", " . A_YYYY . "</a>"
 return
-
+;	/////////////////////////////////////////////
+;	///		UPDATE MARKET TIMELINE	///
+;	////////////////////////////////////////////
 update_market_hour:
-; Set label to current time
 FormatTime, Label, , hh:mm:ss
 WB_Time.document.getElementById("Label").innerHTML := Label
 ; Varibles
@@ -754,9 +735,11 @@ if (h >= 17 && h <= 20)
      Loop 9
        WB_time.document.getElementById("market-hours-newyork-" . A_Index).style.backgroundColor := "#252b3c"
 return
-;--------------------------------------------
-;----------- FUNCTION --------------------
-;--------------------------------------------
+;	/////////////////////////////////////////////
+;	///														///
+;	///					FUNCTION					///
+;	///														///
+;	////////////////////////////////////////////
 class WB_Home_events {
 	;for more events and other, see http://msdn.microsoft.com/en-us/library/aa752085
 	
@@ -922,9 +905,52 @@ UTC_offset() {
   return UTC*-1
 }
 UpdateEventWatch(amount,WB_Calendar,WB_Home) {
-  cal_txt := getCalendar(WB_Calendar)
-  WB_Home.document.GetElementById("event-watcher").innerHTML = ""
-  event_info_num := 0
+cal_txt := getCalendar(WB_Calendar)
+WB_Home.document.GetElementById("event-watcher").innerHTML = ""
+event_info_num := 0
+Loop, parse, cal_txt, #		; Parse Day seperate by #
+{
+	Loop, parse, A_LoopField, `n			; Parse Events inside Day seperate by linefeed
+	{
+		; get incoming news
+		if !A_LoopField
+			continue
+		; Split event to variables
+		StringSplit, event_info_, A_LoopField, |
+		AutoTrim, On
+		event_info_date := event_info_1
+		if event_info_2 ; save last run time
+			event_info_time := event_info_2
+		AutoTrim, Off
+		; TIME
+		StringRight, event_info_ap, event_info_time, 2		; AM / PM
+		StringTrimRight, event_info_time_h_12, event_info_time, 2 ; HOUR in 12H mode
+		StringSplit, event_time_, event_info_time_h_12, :
+		event_info_time_h := event_time_1
+		if event_info_ap = pm
+			event_info_time_h_24 := event_info_time_h + 12
+		else
+		{
+			event_info_time_h_24 := event_info_time_h
+			if event_info_time_h_12 = 12	; here
+			event_info_time_h_24 = 0
+		}
+		;~ if event_info_time_h_24 = 12
+			;~ event_info_time_h_24 = 0
+		event_info_time_m := event_time_2
+		; --
+		event_info_currency := event_info_3
+		event_info_impact := event_info_4
+		event_info_impact_img := event_info_5
+		event_info_title := event_info_6
+		event_info_actual := event_info_7
+		event_info_forecast := event_info_8
+		event_info_previous := event_info_9
+		; Value Check
+		MsgBox event_info_date : %event_info_date%`nevent_info_time : %event_info_time%`nevent_info_ap : %event_info_ap%`nevent_info_time_h_12 : %event_info_time_h_12%`nevent_info_time_h_24 : %event_info_time_h_24%`nevent_info_time_m : %event_info_time_m%`nevent_info_currency : %event_info_currency%`nevent_info_impact : %event_info_impact%`nevent_info_impact_img : %event_info_impact_img%`nevent_info_title : %event_info_title%`n
+	}
+}
+  /*
   Loop, parse, cal_txt, #                    ; parse day
   {
     Date := SubStr(A_LoopField, 1,12)
@@ -996,13 +1022,13 @@ UpdateEventWatch(amount,WB_Calendar,WB_Home) {
                 event_info_until_h := 24*days_diff - A_Hour + event_info_time_h_24
                 event_info_until_m := event_info_time_m - A_Min
                 if event_info_until_m < 0
-                  {
+					{
                     event_info_until_m+=60
                     event_info_until_h-=1
-                  }
+					}
                   if (even_info_until_m > 0 && event_info_until_m < 10)
                     event_info_until_m = 0%event_info_until_m%
-              }
+				}
             }
             ;~ MsgBox % event_info_until_h
             ;~ event_info_until_h := event_info_time_h_24 - A_Hour
@@ -1016,136 +1042,13 @@ UpdateEventWatch(amount,WB_Calendar,WB_Home) {
             if event_info_until_h >= 0
               WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_until . event_info_impact_img . event_info_currency . "</div>"
             ;~ MsgBox % event_info_date "," currDate
-       ;   if A_Hour < 12
-        ;  {
-            ;StringTrimRight, time_mod, event_info_time, 2
-            ;StringSplit, time_, event_info_time, :
-            ;if time_1 = 12
-            ;  time_1 = 0
-            ;eventTime := time_1 time_2
-            ;currTime := A_Hour A_Min
-            ;~ MsgBox "%time_1%" , "%time_2%"
-            ;until_event_h := time_1 - A_Hour
-            ;StringReplace, time_2, time_2, %A_Space%,,all
-            ;StringTrimRight, time_2, time_2, 2
-            ;until_event_m := time_2 - A_Min
-            ;if (currTIme < eventTime) 
-            ;  WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"until_event_h . ":" . until_event_m . event_info_impact_img . event_info_currency . "</div>"
-              ;~ WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-          ;}
-         ; if A_Hour >= 12
-          ;{
-          ;}
-          ;~ WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-          }
-      }
-  }
+			}
+		}
+	} 
+	*/
 }
-;~ F1::WB_Home.document.GetElementById("notification").innerHTML := "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 300px; height: 20px'>aaaaaaaaaaaaaaaaaa</div>"
 F1::UpdateEventWatch(5,WB_Calendar,WB_Home)
 return
 GuiClose:
 F5::
 ExitApp
-
-
-/*
-F1::
-cal_txt := getCalendar(WB_Calendar)
-WB_Home.document.GetElementById("event-watcher").innerHTML = ""
-event_num := 0
-Loop, parse, cal_txt, #                                           ; parse day seperate by #
-{
-  Loop, parse, A_LoopField, `n                              ; parse event by linefeed
-  {
-    StringSplit, data_, A_LoopField, |                   ; split event information by |
-    StringTrimLeft, data_1, data_1, 3                  ; cut out day of the week
-    StringLeft, event_info_month, data_1, 3      ; MONTH
-    StringTrimLeft, data_1, data_1, 4                  ; cut out month
-    if event_info_month = jan
-      event_info_month = 
-    event_info_date := data_1
-    break
-  }
-  ; Get 5 incoming lines
-  if (event_info_date >= A_DD)                          ; skip old news
-  {
-    Loop, parse, A_LoopField, `n
-    {
-      
-    }
-  }
-  /*
-  if (data_1 = A_DD) ; IF SAME DAY
-    Loop, parse, A_LoopField, `n
-    {
-      if !A_LoopField ; skip empty lines
-        continue
-      ; Split text to variables
-      StringSplit, event_info_, A_LoopField, |
-      event_info_date := event_info_1
-      AutoTrim, On
-      if event_info_2 ; save last run time
-        event_info_time := event_info_2
-      AutoTrim, Off
-      ;~ event_info_time_mod := even_info_time
-      ; TIME
-      StringRight, event_info_ap, event_info_time, 2
-      StringTrimRight, event_info_time, event_info_time, 2
-      StringSplit, event_time_, event_info_time, :
-      event_info_time_h := event_time_1
-      event_info_time_m := event_time_2
-      ;~ event_info_time_mod := 
-      ; --
-      event_info_currency := event_info_3
-      event_info_impact := event_info_4
-      event_info_impact_img := event_info_5
-      event_info_title := event_info_6
-      event_info_actual := event_info_7
-      event_info_forecast := event_info_8
-      event_info_previous := event_info_9
-      ;~ MsgBox % A_LoopField
-      ; get All Day , Tentative and other type of Time
-      IfNotInString, event_info_time, :
-        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-      ; get 5 Up coming news only
-      ; get current time
-      ;~ currTime := A_Now
-      ; arrange event time
-      ;~ IfInString
-      ;~ event_info_time_mod_24 :=
-      ;~ eventTime := A_YYYY
-      ; convert date n timee
-      ; convert the rest
-      /*
-      ;~ StringRight, ampm, event_info_time, 2
-      ;~ MsgBox % ampm
-       if A_Hour < 12
-      {
-        StringTrimRight, time_mod, event_info_time, 2
-        StringSplit, time_, event_info_time, :
-        if time_1 = 12
-          time_1 = 0
-        eventTime := time_1 time_2
-        currTime := A_Hour A_Min
-        ;~ MsgBox "%time_1%" , "%time_2%"
-        until_event_h := time_1 - A_Hour
-        StringReplace, time_2, time_2, %A_Space%,,all
-        StringTrimRight, time_2, time_2, 2
-        until_event_m := time_2 - A_Min
-        if (currTIme < eventTime) 
-          WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"until_event_h . ":" . until_event_m . event_info_impact_img . event_info_currency . "</div>"
-          ;~ WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-      }
-      if A_Hour >= 12
-      {
-      }
-      ;~ WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-      *\ first stop---
-    }
-    ;~ MsgBox % A_LoopField
-  data_1 = 
-  */
-;~ }
-
-;~ MsgBox % getCalendar(WB_Calendar)
