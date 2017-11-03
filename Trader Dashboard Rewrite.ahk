@@ -904,50 +904,142 @@ UTC_offset() {
   ; reverse
   return UTC*-1
 }
+findDateCount(month) {
+  if month = 1
+    days_count := 31
+  if month = 2
+    if (Mod(A_Year,4) = 0)
+      days_count := 29
+    else if (Mod(A_Year,100) = 0)
+      days_count := 28
+    else if (Mod(A_Year,100) = 0 && Mod(A_Year,400) = 0)
+      days_count := 29
+    else
+      days_count := 28
+  if month = 3
+    days_count := 31
+  if month = 4
+    days_count := 30
+  if month = 5
+    days_count := 31
+  if month = 6
+    days_count := 30
+  if month = 7
+    days_count := 31
+  if month = 8
+    days_count := 31
+  if month = 9
+    days_count := 30
+  if month = 10
+    days_count := 31
+  if month = 11
+    days_count := 30
+  if month = 12
+    days_count := 31
+  return days_count
+}
 UpdateEventWatch(amount,WB_Calendar,WB_Home) {
 cal_txt := getCalendar(WB_Calendar)
 WB_Home.document.GetElementById("event-watcher").innerHTML = ""
 event_info_num := 0
 Loop, parse, cal_txt, #		; Parse Day seperate by #
 {
-	Loop, parse, A_LoopField, `n			; Parse Events inside Day seperate by linefeed
-	{
-		; get incoming news
-		if !A_LoopField
-			continue
-		; Split event to variables
-		StringSplit, event_info_, A_LoopField, |
-		AutoTrim, On
-		event_info_date := event_info_1
-		if event_info_2 ; save last run time
-			event_info_time := event_info_2
-		AutoTrim, Off
-		; TIME
-		StringRight, event_info_ap, event_info_time, 2		; AM / PM
-		StringTrimRight, event_info_time_h_12, event_info_time, 2 ; HOUR in 12H mode
-		StringSplit, event_time_, event_info_time_h_12, :
-		event_info_time_h := event_time_1
-		if event_info_ap = pm
-			event_info_time_h_24 := event_info_time_h + 12
-		else
-		{
-			event_info_time_h_24 := event_info_time_h
-			if event_info_time_h_12 = 12	; here
-			event_info_time_h_24 = 0
-		}
-		;~ if event_info_time_h_24 = 12
-			;~ event_info_time_h_24 = 0
-		event_info_time_m := event_time_2
-		; --
-		event_info_currency := event_info_3
-		event_info_impact := event_info_4
-		event_info_impact_img := event_info_5
-		event_info_title := event_info_6
-		event_info_actual := event_info_7
-		event_info_forecast := event_info_8
-		event_info_previous := event_info_9
-		; Value Check
-		MsgBox event_info_date : %event_info_date%`nevent_info_time : %event_info_time%`nevent_info_ap : %event_info_ap%`nevent_info_time_h_12 : %event_info_time_h_12%`nevent_info_time_h_24 : %event_info_time_h_24%`nevent_info_time_m : %event_info_time_m%`nevent_info_currency : %event_info_currency%`nevent_info_impact : %event_info_impact%`nevent_info_impact_img : %event_info_impact_img%`nevent_info_title : %event_info_title%`n
+  Loop, parse, A_LoopField, `n			; Parse Events inside Day seperate by linefeed
+  {
+    ; get incoming news
+    if !A_LoopField
+        continue
+    ; Split event to variables
+    StringSplit, event_info_, A_LoopField, |
+    AutoTrim, On
+    event_info_date := event_info_1
+    event_info_date_m := SubStr(event_info_date,4,3)
+    event_info_date_d := SubStr(event_info_date,8,2)
+    if event_info_2 ; save last run time
+        event_info_time := event_info_2
+    AutoTrim, Off
+    ; TIME
+    StringRight, event_info_time_ap, event_info_time, 2		; AM / PM
+    StringTrimRight, event_info_time_h_12, event_info_time, 2 ; HOUR in 12H mode
+    StringSplit, event_time_, event_info_time_h_12, :
+    event_info_time_h_12 := event_time_1
+    if event_info_time_ap = pm
+        event_info_time_h_24 := event_info_time_h_12 + 12
+    else
+    {
+        event_info_time_h_24 := event_info_time_h_12
+        if event_info_time_h_12 = 12
+        event_info_time_h_24 = 0
+    }
+    event_info_time_m := event_time_2
+    ; --
+    event_info_currency := event_info_3
+    event_info_impact := event_info_4
+    event_info_impact_img := event_info_5
+    event_info_title := event_info_6
+    event_info_actual := event_info_7
+    event_info_forecast := event_info_8
+    event_info_previous := event_info_9
+    ; Filter out old news
+    if (A_MMM = event_info_date_m)  ; if same month
+    {
+      event_info_until_h :=  24*(event_info_date_d - A_DD) - A_Hour + event_info_time_h_24
+      event_info_until_m := event_info_time_m - A_Min
+      if event_info_until_m < 0
+      {
+        event_info_until_m+=60
+        event_info_until_h-=1
+      }
+      if (even_info_until_m > 0 && event_info_until_m < 10)
+        event_info_until_m = 0%event_info_until_m%
+    }
+    else if (A_MMM > event_info_date_m) ; diff month
+    {
+      event_info_until_h := 24*(findDateCount(A_MM) - A_DD + event_info_date_d) - A_Hour + event_info_time_h_24
+      event_info_until_m := event_info_time_m - A_Min
+      if event_info_until_m < 0
+      {
+        event_info_until_m+=60
+        event_info_until_h-=1
+      }
+      if (even_info_until_m > 0 && event_info_until_m < 10)
+        event_info_until_m = 0%event_info_until_m%
+    }
+    ; Value Check
+    ;~ MsgBox event_info_date : %event_info_date%`nevent_info_time : %event_info_time%`nevent_info_time_ap : %event_info_time_ap%`nevent_info_time_h_12 : %event_info_time_h_12%`nevent_info_time_h_24 : %event_info_time_h_24%`nevent_info_time_m : %event_info_time_m%`nevent_info_currency : %event_info_currency%`nevent_info_impact : %event_info_impact%`nevent_info_impact_img : %event_info_impact_img%`nevent_info_title : %event_info_title%`nevent_info_date_m : %event_info_date_m%`nevent_info_date_d : %event_info_date_d%
+    event_info_until := event_info_until_h "h " event_info_until_m "m"
+    ; get All Day , Tentative and other type of Time
+    if (event_info_date_m == "Jan")
+      event_info_date_MM = 1
+    else if (event_info_date_m == "Feb")
+      event_info_date_MM = 2
+    else if (event_info_date_m == "Mar")
+      event_info_date_MM = 3
+    else if (event_info_date_m == "Apr")
+      event_info_date_MM = 4
+    else if (event_info_date_m == "May")
+      event_info_date_MM = 5
+    else if (event_info_date_m == "Jun")
+      event_info_date_MM = 6
+    else if (event_info_date_m == "Jul")
+      event_info_date_MM = 7
+    else if (event_info_date_m == "Aug")
+      event_info_date_MM = 8
+    else if (event_info_date_m == "Sep")
+      event_info_date_MM = 9
+    else if (event_info_date_m == "Oct")
+      event_info_date_MM = 10
+    else if (event_info_date_m == "Nov")
+      event_info_date_MM = 11
+    else if (event_info_date_m == "Dec")
+      event_info_date_MM = 12
+    if (event_info_date_MM >= A_MM)
+      if (event_info_date_d >= A_DD)
+        IfNotInString, event_info_time, :
+      WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
+    ; Update Event Watch
+    if event_info_until_h >= 0
+      WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_until . event_info_impact_img . event_info_currency . "</div>"
 	}
 }
   /*
