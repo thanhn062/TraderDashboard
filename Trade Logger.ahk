@@ -175,7 +175,11 @@ Send %tp%
 Sleep 100
 Send {Right}
 Sleep 100
+Send {Right}
+Sleep 100
 Send %profit%
+Sleep 100
+Send {Right}
 Sleep 100
 Send {Right}
 Sleep 100

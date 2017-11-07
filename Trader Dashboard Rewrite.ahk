@@ -2,6 +2,8 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+SetBatchLines, -1
+global WB_Calendar, WB_Home, MYAPP_PROTOCOL
 ;	/////////////////////////////////////////////
 ;	///														///
 ;	///				DEFAULT VARS				///
@@ -552,7 +554,9 @@ home_html =
 		</div>
         <!-- NOTIFICATION -->
         <div id="notification" style="border: 1px solid black; width: 210px; height: 225px">Notifications | Trading Plan | Checklist</div>
-        <div id="event-watcher" style="border: 1px solid black; width: 230px; height: 180px">Events</div>
+        <div id="event-watcher" style="border: 1px solid black; width: 230px; height: 180px">
+          <div style='position: relative; text-align: center; border: 1px solid black; background-color: black; color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'><a href="%MYAPP_PROTOCOL%://refresh/eventwatch">Refresh</a></div>
+        </div>
         <div id="utility" style="border: 1px solid black; width: 450px; height: 30px;">Trading Plan | Trading Check List | Quick Web | Trade Logger</div>
 	</body>
 </html>
@@ -560,6 +564,7 @@ home_html =
 WB_Home.Document.Write(home_html)
 SetTimer, home_info, 1000
 Gui, Show, w620 h510 y50, Trader Dashboard ™ - © 2017
+UpdateEventWatch(5)
 Sleep 50
 ComObjConnect(WB_Home, WB_Home_events)  ; Connect WB's events to the WB_events class object.
 return
@@ -615,6 +620,10 @@ else if A_WDay = 6
   DOTW = Friday
 else if A_WDay = 7
   DOTW = Saturday
+if (A_Min != currMin)
+  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent(WB_Home)
+currMin := A_Min
+;~ WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent(WB_Home)
 GuiControl,, home_info, %A_MMM%, %A_DD%, %A_YYYY%`n%DOTW%
 FormatTime, home_info_time, , hhmmtt
 GuiControl,, home_info_time, %home_info_time%
@@ -755,10 +764,9 @@ class WB_Home_events {
 	
 	BeforeNavigate2(WB_Home, NewURL)
 	{
-        global toggle
 		WB_Home.Stop() ;blocked all navigation, we want our own stuff happening
 		;parse the url
-		global MYAPP_PROTOCOL
+		global MYAPP_PROTOCOL, toggle
 		if (InStr(NewURL,MYAPP_PROTOCOL "://")==1) { ;if url starts with "myapp://"
 			what := SubStr(NewURL,Strlen(MYAPP_PROTOCOL)+4) ;get stuff after "myapp://"
 			if InStr(what,"toggle/monthcal")
@@ -769,8 +777,8 @@ class WB_Home_events {
               else
                 GuiControl, Move, MonthCal, x-400 y-90
             }
-			else if InStr(what,"soundplay/ding")
-				SoundPlay, %A_WinDir%\Media\ding.wav
+			else if InStr(what,"refresh/eventwatch")
+              UpdateEventWatch(5)
 		}
 		;else do nothing
 	}
@@ -938,209 +946,166 @@ findDateCount(month) {
     days_count := 31
   return days_count
 }
-UpdateEventWatch(amount,WB_Calendar,WB_Home) {
+UpdateEventWatch(amount) {
 cal_txt := getCalendar(WB_Calendar)
-WB_Home.document.GetElementById("event-watcher").innerHTML = ""
+WB_Home.document.GetElementById("event-watcher").innerHTML := "<div style='position: relative; text-align: center; border: 1px solid black; background-color: black; color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'><a href='" . MYAPP_PROTOCOL .  "://refresh/eventwatch'>Refresh</a></div>"
 event_info_num := 0
-Loop, parse, cal_txt, #		; Parse Day seperate by #
-{
-  Loop, parse, A_LoopField, `n			; Parse Events inside Day seperate by linefeed
+  Loop, parse, cal_txt, #		; Parse Day seperate by #
   {
-    ; get incoming news
-    if !A_LoopField
-        continue
-    ; Split event to variables
-    StringSplit, event_info_, A_LoopField, |
-    AutoTrim, On
-    event_info_date := event_info_1
-    event_info_date_m := SubStr(event_info_date,4,3)
-    event_info_date_d := SubStr(event_info_date,8,2)
-    if event_info_2 ; save last run time
-        event_info_time := event_info_2
-    AutoTrim, Off
-    ; TIME
-    StringRight, event_info_time_ap, event_info_time, 2		; AM / PM
-    StringTrimRight, event_info_time_h_12, event_info_time, 2 ; HOUR in 12H mode
-    StringSplit, event_time_, event_info_time_h_12, :
-    event_info_time_h_12 := event_time_1
-    if event_info_time_ap = pm
+    Loop, parse, A_LoopField, `n			; Parse Events inside Day seperate by linefeed
+    {
+      ; get incoming news
+      if !A_LoopField
+          continue
+      ; Split event to variables
+      StringSplit, event_info_, A_LoopField, |
+      AutoTrim, On
+      event_info_date := event_info_1
+      event_info_date_m := SubStr(event_info_date,4,3)
+      event_info_date_d := SubStr(event_info_date,8,2)
+      if event_info_2 ; save last run time
+          event_info_time := event_info_2
+      AutoTrim, Off
+      ; TIME
+      StringRight, event_info_time_ap, event_info_time, 2		; AM / PM
+      StringTrimRight, event_info_time_h_12, event_info_time, 2 ; HOUR in 12H mode
+      StringSplit, event_time_, event_info_time_h_12, :
+      event_info_time_h_12 := event_time_1
+      if event_info_time_ap = pm
+      {
         event_info_time_h_24 := event_info_time_h_12 + 12
-    else
-    {
-        event_info_time_h_24 := event_info_time_h_12
         if event_info_time_h_12 = 12
-        event_info_time_h_24 = 0
-    }
-    event_info_time_m := event_time_2
-    ; --
-    event_info_currency := event_info_3
-    event_info_impact := event_info_4
-    event_info_impact_img := event_info_5
-    event_info_title := event_info_6
-    event_info_actual := event_info_7
-    event_info_forecast := event_info_8
-    event_info_previous := event_info_9
-    ; Filter out old news
-    if (A_MMM = event_info_date_m)  ; if same month
-    {
-      event_info_until_h :=  24*(event_info_date_d - A_DD) - A_Hour + event_info_time_h_24
-      event_info_until_m := event_info_time_m - A_Min
-      if event_info_until_m < 0
-      {
-        event_info_until_m+=60
-        event_info_until_h-=1
+          event_info_time_h_24 = 12
       }
-      if (even_info_until_m > 0 && event_info_until_m < 10)
-        event_info_until_m = 0%event_info_until_m%
-    }
-    else if (A_MMM > event_info_date_m) ; diff month
-    {
-      event_info_until_h := 24*(findDateCount(A_MM) - A_DD + event_info_date_d) - A_Hour + event_info_time_h_24
-      event_info_until_m := event_info_time_m - A_Min
-      if event_info_until_m < 0
+      else
       {
-        event_info_until_m+=60
-        event_info_until_h-=1
+          event_info_time_h_24 := event_info_time_h_12
+          if event_info_time_h_12 = 12
+            event_info_time_h_24 = 0
       }
-      if (even_info_until_m > 0 && event_info_until_m < 10)
-        event_info_until_m = 0%event_info_until_m%
+      event_info_time_m := event_time_2
+      ; --
+      event_info_currency := event_info_3
+      event_info_impact := event_info_4
+      event_info_impact_img := event_info_5
+      event_info_title := event_info_6
+      event_info_actual := event_info_7
+      event_info_forecast := event_info_8
+      event_info_previous := event_info_9
+      ; Filter out old news
+      if (A_MMM = event_info_date_m)  ; if same month
+      {
+        event_info_until_h :=  24*(event_info_date_d - A_DD) - A_Hour + event_info_time_h_24
+        event_info_until_m := event_info_time_m - A_Min
+        if event_info_until_m < 0
+        {
+          event_info_until_m+=60
+          event_info_until_h-=1
+        }
+        if (even_info_until_m > 0 && event_info_until_m < 10)
+          event_info_until_m = 0%event_info_until_m%
+      }
+      else if (A_MMM > event_info_date_m) ; diff month
+      {
+        event_info_until_h := 24*(findDateCount(A_MM) - A_DD + event_info_date_d) - A_Hour + event_info_time_h_24
+        event_info_until_m := event_info_time_m - A_Min
+        if event_info_until_m < 0
+        {
+          event_info_until_m+=60
+          event_info_until_h-=1
+        }
+        if (even_info_until_m > 0 && event_info_until_m < 10)
+          event_info_until_m = 0%event_info_until_m%
+      }
+      ; Value Check
+      ;~ MsgBox event_info_date : %event_info_date%`nevent_info_time : %event_info_time%`nevent_info_time_ap : %event_info_time_ap%`nevent_info_time_h_12 : %event_info_time_h_12%`nevent_info_time_h_24 : %event_info_time_h_24%`nevent_info_time_m : %event_info_time_m%`nevent_info_currency : %event_info_currency%`nevent_info_impact : %event_info_impact%`nevent_info_impact_img : %event_info_impact_img%`nevent_info_title : %event_info_title%`nevent_info_date_m : %event_info_date_m%`nevent_info_date_d : %event_info_date_d%
+      event_info_until := event_info_until_h "h " event_info_until_m "m"
+      ; get All Day , Tentative and other type of Time
+      if (event_info_date_m == "Jan")
+        event_info_date_MM = 1
+      else if (event_info_date_m == "Feb")
+        event_info_date_MM = 2
+      else if (event_info_date_m == "Mar")
+        event_info_date_MM = 3
+      else if (event_info_date_m == "Apr")
+        event_info_date_MM = 4
+      else if (event_info_date_m == "May")
+        event_info_date_MM = 5
+      else if (event_info_date_m == "Jun")
+        event_info_date_MM = 6
+      else if (event_info_date_m == "Jul")
+        event_info_date_MM = 7
+      else if (event_info_date_m == "Aug")
+        event_info_date_MM = 8
+      else if (event_info_date_m == "Sep")
+        event_info_date_MM = 9
+      else if (event_info_date_m == "Oct")
+        event_info_date_MM = 10
+      else if (event_info_date_m == "Nov")
+        event_info_date_MM = 11
+      else if (event_info_date_m == "Dec")
+        event_info_date_MM = 12
+      ; filter All Day, tentative & stuff like that by dates
+      if (event_info_date_MM >= A_MM)
+        if (event_info_date_d >= A_DD)
+          IfNotInString, event_info_time, :
+        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: left; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_impact_img . event_info_currency . " - " . event_info_time . "</div>"
+      ; Update Event Watch
+      if event_info_until_h >= 0
+        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: left; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_impact_img . event_info_currency . " - " . event_info_until . "</div>"
+      ; Set UpNextTimer = Event Time - currTime, accurate by seconds
+      ;~ here
     }
-    ; Value Check
-    ;~ MsgBox event_info_date : %event_info_date%`nevent_info_time : %event_info_time%`nevent_info_time_ap : %event_info_time_ap%`nevent_info_time_h_12 : %event_info_time_h_12%`nevent_info_time_h_24 : %event_info_time_h_24%`nevent_info_time_m : %event_info_time_m%`nevent_info_currency : %event_info_currency%`nevent_info_impact : %event_info_impact%`nevent_info_impact_img : %event_info_impact_img%`nevent_info_title : %event_info_title%`nevent_info_date_m : %event_info_date_m%`nevent_info_date_d : %event_info_date_d%
-    event_info_until := event_info_until_h "h " event_info_until_m "m"
-    ; get All Day , Tentative and other type of Time
-    if (event_info_date_m == "Jan")
-      event_info_date_MM = 1
-    else if (event_info_date_m == "Feb")
-      event_info_date_MM = 2
-    else if (event_info_date_m == "Mar")
-      event_info_date_MM = 3
-    else if (event_info_date_m == "Apr")
-      event_info_date_MM = 4
-    else if (event_info_date_m == "May")
-      event_info_date_MM = 5
-    else if (event_info_date_m == "Jun")
-      event_info_date_MM = 6
-    else if (event_info_date_m == "Jul")
-      event_info_date_MM = 7
-    else if (event_info_date_m == "Aug")
-      event_info_date_MM = 8
-    else if (event_info_date_m == "Sep")
-      event_info_date_MM = 9
-    else if (event_info_date_m == "Oct")
-      event_info_date_MM = 10
-    else if (event_info_date_m == "Nov")
-      event_info_date_MM = 11
-    else if (event_info_date_m == "Dec")
-      event_info_date_MM = 12
-    if (event_info_date_MM >= A_MM)
-      if (event_info_date_d >= A_DD)
-        IfNotInString, event_info_time, :
-      WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-    ; Update Event Watch
-    if event_info_until_h >= 0
-      WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_until . event_info_impact_img . event_info_currency . "</div>"
-	}
+  }
 }
-  /*
-  Loop, parse, cal_txt, #                    ; parse day
+countDownEvent(WB_Home) {
+  event_watcher_html := WB_Home.document.getElementById("event-watcher").innerHTML
+  StringReplace, event_watcher_html, event_watcher_html, <DIV, †, all
+  StringSplit, event_watcher_html_, event_watcher_html, †
+  Loop, %event_watcher_html_0%
   {
-    Date := SubStr(A_LoopField, 1,12)
-    StringSplit, Date_, Date, |
-    Date := Date_1
-    ;~ MsgBox % tempDate
-    StringLeft, DoTW, Date, 3
-    StringTrimLeft, Date, Date, 3
-    StringSplit, Date_, Date, %A_Space%
-    month := Date_1
-    date := Date_2
-    ; put the event on a liner and just work from there
-    ; GOAL:
-    ;~ MsgBox % "," month "," date "," A_MMM "," A_DD
-    if (month >= A_MMM)
-      if (date >= A_DD)
+    if A_Index = 1
+      continue
+    RegExMatch(event_watcher_html_%A_Index%,"white(.*)<IMG",time)
+    RegExMatch(event_watcher_html_%A_Index%,"png(.*)<",symbol)
+    RegExMatch(event_watcher_html_%A_Index%,"impact-(.*)png",impact)
+    StringTrimRight, time, time, 4
+    StringTrimLeft, time, time, 7
+    StringTrimRight, symbol, symbol, 1
+    StringTrimLeft, symbol, symbol, 6
+    StringTrimRight, impact, impact, 4 
+    StringTrimLeft, impact, impact, 7
+    StringReplace, impact, impact, red, High
+    StringReplace, impact, impact, yellow, Medium
+    StringReplace, impact, impact, orange, Low
+    var := SubStr(time,1,1) 
+    if var is number
+    {
+      StringReplace, time, time, h,,
+      StringReplace, time, time, m,,
+      StringSplit, time_, time, %A_Space%
+      time_h := time_1
+      time_m := time_2
+      
+      time_m-=1 ; Minute
+      if time_m <= 0
       {
-        ;~ MsgBox % A_LoopField
-          Loop, parse, A_LoopField, `n        ; parse event
-          {
-            if !A_LoopField
-              continue
-            ; Split text to variables
-            StringSplit, event_info_, A_LoopField, |
-            AutoTrim, On
-            event_info_date := event_info_1
-            if event_info_2 ; save last run time
-              event_info_time := event_info_2
-            AutoTrim, Off
-            ; TIME
-            StringRight, event_info_ap, event_info_time, 2
-            StringTrimRight, event_info_time_h_12, event_info_time, 2
-            StringSplit, event_time_, event_info_time_h_12, :
-            event_info_time_h := event_time_1
-            if event_info_ap = pm
-              event_info_time_h_24 := event_info_time_h + 12
-            else
-            {
-              event_info_time_h_24 := event_info_time_h
-              if event_info_time_h = 12 here
-                event_info_time_h_24 = 0
-            }
-            ;~ if event_info_time_h_24 = 12
-              ;~ event_info_time_h_24 = 0
-            event_info_time_m := event_time_2
-            ; --
-            event_info_currency := event_info_3
-            event_info_impact := event_info_4
-            event_info_impact_img := event_info_5
-            event_info_title := event_info_6
-            event_info_actual := event_info_7
-            event_info_forecast := event_info_8
-            event_info_previous := event_info_9
-            ; find event count down
-            currDate := A_DDD A_MMM A_Space A_DD
-            if event_info_date != currDate
-            {
-              if SubStr(event_info_date,4,3) != A_MMM   ; if not same month
-              {
-              }
-              else ; if in same month
-              {
-                ;find days difference
-                StringSplit, temp_, event_info_date, %A_Space%
-                eventDate := temp_2
-                days_diff := eventDate - A_DD
-                ;~ MsgBox % days_diff
-                ;~ event_info_until_d :=
-                event_info_until_h := 24*days_diff - A_Hour + event_info_time_h_24
-                event_info_until_m := event_info_time_m - A_Min
-                if event_info_until_m < 0
-					{
-                    event_info_until_m+=60
-                    event_info_until_h-=1
-					}
-                  if (even_info_until_m > 0 && event_info_until_m < 10)
-                    event_info_until_m = 0%event_info_until_m%
-				}
-            }
-            ;~ MsgBox % event_info_until_h
-            ;~ event_info_until_h := event_info_time_h_24 - A_Hour
-            ;~ event_info_until_m := event_info_time_m - A_Min
-            event_info_until := event_info_until_h "h " event_info_until_m "m"
-            ; get All Day , Tentative and other type of Time
-            IfNotInString, event_info_time, :
-              WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>"event_info_time . event_info_impact_img . event_info_currency . "</div>"
-            ;~ MsgBox % event_info_time_h_24 "," A_Hour
-            ;~ if event_info_time_h_24 >= A_Hour
-            if event_info_until_h >= 0
-              WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: center; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_until . event_info_impact_img . event_info_currency . "</div>"
-            ;~ MsgBox % event_info_date "," currDate
-			}
-		}
-	} 
-	*/
+        time_h-=1   ;Hour
+        time_m+=60
+      }
+      StringReplace, event_watcher_html_%A_Index%, event_watcher_html_%A_Index%,white">%time_1%h %time_2%m, white">%time_h%h %time_m%m
+      if (time_m >= 0 && time_h >= 0)
+        new_Event_watcher_html .= "<DIV " . event_watcher_html_%A_Index%
+      ; 5 minute notify
+      if (time_m = 4 && time_h = 0)
+        TrayTip , %impact% Impact, %symbol% - in 5 minute, 4 ;show for 4 seconds
+    }
+    else
+      new_Event_watcher_html .= "<DIV " . event_watcher_html_%A_Index%
+  }
+  return new_Event_watcher_html
 }
-F1::UpdateEventWatch(5,WB_Calendar,WB_Home)
-return
+;~ F2::  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent(WB_Home)
 GuiClose:
 F5::
 ExitApp
