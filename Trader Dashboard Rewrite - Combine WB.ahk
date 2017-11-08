@@ -29,192 +29,19 @@ Don't trade emotionally
 ;	///														///
 ;	////////////////////////////////////////////
 Gui, Add, MonthCal, x-400 y-90 vMonthCal
-Gui, Add, ActiveX, x-1000 y-500 w1000 h500 vWB_Calendar, Shell.Explorer
-Gui, Add, ActiveX, vWB_Home x10 y10 w600 h247, Shell,Explorer
-Gui, Add, ActiveX, vWB_Time x10 y260 w600 h240, Shell , Explorer
+Gui, Add, ActiveX, x-1000 y-500 w620 h240 vWB_Calendar, Shell.Explorer
+Gui, Add, ActiveX, vWB_Home x0 y0 w620 h520, Shell,Explorer
 WB_Calendar.Navigate("about:blank")
 WB_Home.Navigate("about:blank")
-WB_Time.Navigate("about:blank")
 WB_Calendar.silent := true
 WB_Home.silent := true
-WB_Time.silent := true
-SetTimer, update_market_hour, 1000
+SetTimer, update_market_hour, 
 ;	/////////////////////////////////////////////
 ;	///			MARKET HOUR HTML			///
 ;	////////////////////////////////////////////
 time_html =
 (LTrim Join
-<!DOCTYPE html>
-<html>
-	<head>
-      <style>
-        body {
-          //background-color: #3b4157;
-          margin: 0;
-          overflow: hidden;
-        }
-        #market-hour {
-          width: 100`%;
-          height: 100`%;
-          border: 1px solid black;
-          background-color: #3b4157;
-          position: relative;
-          border-collapse: collapse;
-        }
-        #market-hours-mark {
-          border-top: 1px solid #white;
-        }
-        .market-hours-mark td {
-          border-right: 1px solid white;
-        }
-        .market-hours-name {
-          position: absolute;
-          top: 3;
-          left: 3;
-          font-weight: bold;
-          width: 284px;
-        }
-        /* MARKET HOURS */
-        /* Default Color */
-        #market-hours-sydney-1, #market-hours-sydney-2, #market-hours-sydney-3, #market-hours-sydney-4, #market-hours-sydney-5, #market-hours-sydney-6, #market-hours-sydney-7, #market-hours-sydney-8, #market-hours-sydney-9, #market-hours-tokyo-1 , #market-hours-tokyo-2, #market-hours-tokyo-3, #market-hours-tokyo-4, #market-hours-tokyo-5, #market-hours-tokyo-6, #market-hours-tokyo-7, #market-hours-tokyo-8, #market-hours-tokyo-9, #market-hours-london-1, #market-hours-london-2, #market-hours-london-3, #market-hours-london-4, #market-hours-london-5, #market-hours-london-6, #market-hours-london-7, #market-hours-london-8, #market-hours-london-9, #market-hours-newyork-1, #market-hours-newyork-2, #market-hours-newyork-3, #market-hours-newyork-4, #market-hours-newyork-5, #market-hours-newyork-6, #market-hours-newyork-7, #market-hours-newyork-8, #market-hours-newyork-9  {
-          height: 25px;
-          color: white;
-          font-size: 1em;
-          background-color: #252b3c;
-          }
-        /* TIME MARK */
-        #Mark {
-        content: "";
-        position: absolute;
-        border: 1px solid orange;
-        height: 295px;
-        top: 0px;
-        left: -120px;
-        width: 0;
-        z-index: 1;
-      }
-      #Mark #Arrow {
-        content: '';
-        position: absolute;
-        left: 4px;
-        top: 115px;
-        width: 0;
-        height: 0;
-        border-top: 7px solid transparent;
-        border-bottom: 7px solid transparent;
-        border-right: 7px solid black;
-        clear: both;
-        z-index: 3;
-      }
-      #Mark #Label {
-        text-align: center;
-        border: 1px solid black;
-        background-color: orange;
-        color: black;
-        font-weight: bold;
-        position: absolute;
-        top:  109px;
-        left: 11px;
-        z-index: 19;
-        padding: 2px;
-        font-size: 18px;
-        width: 98px;
-        height: 20px;
-      }
-      /* TIME MARK - HOVER */
-        #Mark_hover {
-        content: "";
-        position: absolute;
-        border: 1px solid #25d0a3;
-        height: 295px;
-        top: 0px;
-        left: -120px;
-        width: 0;
-        z-index: 2;
-      }
-      #Mark_hover #Arrow_hover {
-        content: '';
-        position: absolute;
-        left: 4px;
-        top: 115px;
-        width: 0;
-        height: 0;
-        border-top: 7px solid transparent;
-        border-bottom: 7px solid transparent;
-        border-right: 7px solid black;
-        clear: both;
-        z-index: 3;
-      }
-      #Mark_hover #Label_hover {
-        text-align: center;
-        border: 1px solid black;
-        background-color: #25d0a3;
-        color: black;
-        font-weight: bold;
-        position: absolute;
-        top:  109px;
-        left: 11px;
-        z-index: 19;
-        padding: 2px;
-        font-size: 18px;
-        width: 98px;
-        height: 20px;
-      }
-      /* VOLUME */
-      #vol-chart {
-        height: 160px;
-      }
-      #vol-chart td {
-        border-right: 1px solid white;
-      }
-      #vol-chart td div{
-        background-color: #25d0a3;
-        width: 5px;
-        bottom: 1px;
-        position: absolute;
-        margin: 10px 10px 0 10px;
-        padding: 4;
-      }
-      #vol-1 {height: 1`%;}
-      #vol-2 {height: 5`%;}
-      #vol-3 {height: 8`%;}
-      #vol-4 {height: 15`%;}
-      #vol-5 {height: 16`%;}
-      #vol-6 {height: 12`%;}
-      #vol-7 {height: 10`%;}
-      #vol-8 {height: 5`%;}
-      #vol-9 {height: 13`%;}
-      #vol-10 {height: 25`%;}
-      #vol-11 {height: 35`%;}
-      #vol-12 {height: 30`%;}
-      #vol-13 {height: 28`%;}
-      #vol-14 {height: 25`%;}
-      #vol-15 {height: 22`%;}
-      #vol-16 {height: 40`%;}
-      #vol-17 {height: 45`%;}
-      #vol-18 {height: 48`%;}
-      #vol-19 {height: 35`%;}
-      #vol-20 {height: 20`%;}
-      #vol-21 {height: 10`%;}
-      #vol-22 {height: 8`%;}
-      #vol-23 {height: 5`%;}
-      #vol-24 {height: 2`%;}
-      .good-time-highlight {
-        background-color: #999900;
-      }
-      .bad-time-highlight {
-        background-color: #CC0000;
-      }
-      #sydney_stat, #tokyo_stat, #london_stat, #newyork_stat {
-        position: absolute;
-        left: 150px;
-        top: 3px;
-        width: 135px;
-      }
-       </style>
-    </head>
-    <body onmousemove ="showCoor(event)" onmouseout="clearCoor()">
-        <table id="market-hour">
+        <table id="market-hour" onmousemove ="showCoor(event)" onmouseout="clearCoor()">
         <!-- Marks -->
         <tr class="market-hours-mark" style="height: 10px;">
           <td class="bad-time-highlight"></td>
@@ -348,7 +175,7 @@ time_html =
           <td id="market-hours-newyork-9"></td>
         </tr>
         <div id="timeMarker"></div>
-        <tr style="height: 2px; background-color: white;;"><td colspan="24">Volume</td></tr>
+        <tr style="height: 2px; background-color: white;"><td colspan="24">Volume</td></tr>
         <tr id="vol-chart">
           <td class="bad-time-highlight"><div id="vol-1"></div></td>
           <td><div id="vol-2"></div></td>
@@ -480,11 +307,8 @@ time_html =
            document.getElementById("newyork_stat").style.display = "none";
         }
         </script>
-	</body>
-</html>
 )
 Sleep 50
-WB_Time.Document.Write(time_html)
 ;	/////////////////////////////////////////////
 ;	///		MAIN HOME PAGE HTML		///
 ;	////////////////////////////////////////////
@@ -493,6 +317,10 @@ home_html =
 <!DOCTYPE html>
 <head>
 	<style>
+      body {
+        overflow: hidden;
+        margin: 0;
+      }
 		.background {
 			position: absolute;
 			index: 0;
@@ -512,58 +340,343 @@ home_html =
           text-decoration: none;
           color: white;
         }
-        /* NOTIFICATION */
-        #notification {
+        /* UTILITY */
+        #trading-plan {
           position: absolute;
           left: 15px;
           top: 60px;
           padding: 5px;
+          border: 1px solid black;
+          width: 235px; 
+          height: 270px;
+          background-color: #252B3C; 
+          color: white;
+        }
+        #trading-checklist {
+          position: absolute;
+          left: 265px;
+          top: 60px;
+          padding: 5px;
+          border: 1px solid black;
+          width: 235px; 
+          height: 270px;
+          background-color: #252B3C; 
+          color: white;
         }
         #utility {
           position: absolute;
           padding: 5px;
           left: 15px;
           top: 10px;
+          border: 1px solid black; 
+          width: 485px; 
+          height: 40px;
+          background-color: #252B3C; 
+          color: white;
+          font-size: 30px
         }
         #event-watcher {
           position: absolute;
           padding: 5px;
-          right: 10px;
-          bottom: 10px;
+          right: 8px;
+          top: 150px;
           overflow-y: auto;
+          border: 1px solid black; 
+          width: 230px; 
+          height: 180px
         }
+        #utility ul {
+          list-style-type: none;
+        }
+        #utility li {
+            float: left;
+        }
+        #utility li a {
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 2px 16px;
+            text-decoration: none;
+        }
+        li a:hover {
+            background-color: #111;
+        }
+        #trading-plan li {
+          padding-top: 15px;
+        }
+        #trading-checklist li {
+          padding-top: 9px;
+        }
+        /* 
+        ////////////////////////////////////////////////////////
+        ///                     MARKET - HOUR CSS                      ///
+        ///////////////////////////////////////////////////////
+        */
+        #market-hour {
+          width: 100`%;
+          height: 100`%;
+          border: 1px solid black;
+          background-color: #3b4157;
+          position: absolute;
+          border-collapse: collapse;
+          bottom: 0;
+          right: 0;
+        }
+        #market-hours-mark {
+          border-top: 1px solid #white;
+        }
+        .market-hours-mark td {
+          border-right: 1px solid white;
+        }
+        .market-hours-name {
+          position: absolute;
+          top: 3;
+          left: 3;
+          font-weight: bold;
+          width: 284px;
+        }
+        /* MARKET HOURS */
+        /* Default Color */
+        #market-hours-sydney-1, #market-hours-sydney-2, #market-hours-sydney-3, #market-hours-sydney-4, #market-hours-sydney-5, #market-hours-sydney-6, #market-hours-sydney-7, #market-hours-sydney-8, #market-hours-sydney-9, #market-hours-tokyo-1 , #market-hours-tokyo-2, #market-hours-tokyo-3, #market-hours-tokyo-4, #market-hours-tokyo-5, #market-hours-tokyo-6, #market-hours-tokyo-7, #market-hours-tokyo-8, #market-hours-tokyo-9, #market-hours-london-1, #market-hours-london-2, #market-hours-london-3, #market-hours-london-4, #market-hours-london-5, #market-hours-london-6, #market-hours-london-7, #market-hours-london-8, #market-hours-london-9, #market-hours-newyork-1, #market-hours-newyork-2, #market-hours-newyork-3, #market-hours-newyork-4, #market-hours-newyork-5, #market-hours-newyork-6, #market-hours-newyork-7, #market-hours-newyork-8, #market-hours-newyork-9  {
+          height: 25px;
+          color: white;
+          font-size: 1em;
+          background-color: #252b3c;
+          }
+        /* TIME MARK */
+        #Mark {
+        content: "";
+        position: absolute;
+        border: 1px solid orange;
+        height: 295px;
+        bottom: 0px;
+        left: -120px;
+        width: 0;
+        z-index: 1;
+      }
+      #Mark #Arrow {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 115px;
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 7px solid black;
+        clear: both;
+        z-index: 3;
+      }
+      #Mark #Label {
+        text-align: center;
+        border: 1px solid black;
+        background-color: orange;
+        color: black;
+        font-weight: bold;
+        position: absolute;
+        top:  109px;
+        left: 11px;
+        z-index: 19;
+        padding: 2px;
+        font-size: 18px;
+        width: 98px;
+        height: 20px;
+      }
+      /* TIME MARK - HOVER */
+        #Mark_hover {
+        content: "";
+        position: absolute;
+        border: 1px solid #25d0a3;
+        height: 295px;
+        bottom: 0px;
+        left: -120px;
+        width: 0;
+        z-index: 2;
+      }
+      #Mark_hover #Arrow_hover {
+        content: '';
+        position: absolute;
+        left: 4px;
+        top: 115px;
+        width: 0;
+        height: 0;
+        border-top: 7px solid transparent;
+        border-bottom: 7px solid transparent;
+        border-right: 7px solid black;
+        clear: both;
+        z-index: 3;
+      }
+      #Mark_hover #Label_hover {
+        text-align: center;
+        border: 1px solid black;
+        background-color: #25d0a3;
+        color: black;
+        font-weight: bold;
+        position: absolute;
+        top:  109px;
+        left: 11px;
+        z-index: 19;
+        padding: 2px;
+        font-size: 18px;
+        width: 98px;
+        height: 20px;
+      }
+      /* VOLUME */
+      #vol-chart {
+        height: 160px;
+      }
+      #vol-chart td {
+        border-right: 1px solid white;
+      }
+      #vol-chart td div{
+        background-color: #25d0a3;
+        width: 5px;
+        bottom: 1px;
+        position: absolute;
+        margin: 10px 10px 0 10px;
+        padding: 4;
+      }
+      #vol-1 {height: 1`%;}
+      #vol-2 {height: 5`%;}
+      #vol-3 {height: 8`%;}
+      #vol-4 {height: 15`%;}
+      #vol-5 {height: 16`%;}
+      #vol-6 {height: 12`%;}
+      #vol-7 {height: 10`%;}
+      #vol-8 {height: 5`%;}
+      #vol-9 {height: 13`%;}
+      #vol-10 {height: 25`%;}
+      #vol-11 {height: 35`%;}
+      #vol-12 {height: 30`%;}
+      #vol-13 {height: 28`%;}
+      #vol-14 {height: 25`%;}
+      #vol-15 {height: 22`%;}
+      #vol-16 {height: 40`%;}
+      #vol-17 {height: 45`%;}
+      #vol-18 {height: 48`%;}
+      #vol-19 {height: 35`%;}
+      #vol-20 {height: 20`%;}
+      #vol-21 {height: 10`%;}
+      #vol-22 {height: 8`%;}
+      #vol-23 {height: 5`%;}
+      #vol-24 {height: 2`%;}
+      .good-time-highlight {
+        background-color: #999900;
+      }
+      .bad-time-highlight {
+        background-color: #CC0000;
+      }
+      #sydney_stat, #tokyo_stat, #london_stat, #newyork_stat {
+        position: absolute;
+        left: 150px;
+        top: 3px;
+        width: 135px;
+      }
+      /*
+          /////////////////////
+          ///   TOOL TIP    ///
+          ////////////////////
+      */
+      .tooltip {
+          position: relative;
+          display: inline-block;
+      }
+
+      .tooltip .tooltiptext {
+          visibility: hidden;
+          left: -285px;
+          top: 0px;
+          width: 230px;
+          background-color: #fff;
+          color: black;
+          text-align: left;
+          border-radius: 6px;
+          padding: 10px 10px;
+          border: 1px solid black;
+          /* Position the tooltip */
+          position: absolute;
+          z-index: 1;
+      }
+
+      .tooltip:hover .tooltiptext {
+          visibility: visible;
+      }
 	</style>
 </head>
 <html>
-	<body style="margin: 0;">
+	<body>
     <script>document.ondragstart = function () { return false; };</script>
-		<img class="background" src="C:/Users/510th/Desktop/Trader Dashboard/nature.jpg" width="100`%" height="100`%">
+		<img class="background" src="C:/Users/510th/Desktop/Trader Dashboard/nature.jpg" width="100`%" height="54`%">
         <!-- CLOCK -->
-		<div id="time-info"><div id="currDate" style="font-size: 21px; background-color: black; color: white; padding: 2px; text-align: center; ">------------</div><hr>
+		<div id="time-info"><div id="currDate" style="font-size: 21px; background-color: #252B3C; color: white; padding: 2px; text-align: center; ">------------</div><hr>
 			<table class="time">
 				<tr>
-					<td id="time_display_1" style="background-color: black; color: white">0</td>
-					<td id="time_display_2" style="background-color: black; color: white">0</td>
+					<td id="time_display_1" style="background-color: #252B3C; color: white">0</td>
+					<td id="time_display_2" style="background-color: #252B3C; color: white">0</td>
 					<td>:</td>
-					<td id="time_display_3" style="background-color: black; color: white">0</td>
-					<td id="time_display_4" style="background-color: black; color: white">0</td>
+					<td id="time_display_3" style="background-color: #252B3C; color: white">0</td>
+					<td id="time_display_4" style="background-color: #252B3C; color: white">0</td>
 					<td>:</td>
-					<td id="time_display_5" style="background-color: black; color: white">A</td>
-					<td id="time_display_6" style="background-color: black; color: white">M</td>
+					<td id="time_display_5" style="background-color: #252B3C; color: white">A</td>
+					<td id="time_display_6" style="background-color: #252B3C; color: white">M</td>
 				</tr>
 			</table>
 		</div>
-        <!-- NOTIFICATION -->
-        <div id="notification" style="border: 1px solid black; width: 210px; height: 225px">Notifications | Trading Plan | Checklist</div>
-        <div id="event-watcher" style="border: 1px solid black; width: 230px; height: 180px">
-          <div style='position: relative; text-align: center; border: 1px solid black; background-color: black; color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'><a href="%MYAPP_PROTOCOL%://refresh/eventwatch">Refresh</a></div>
+        <!-- UTILITY -->
+        <div id="trading-plan">📜 Trading Plan<hr>
+        <div style="width: 240px; height: 230px; overflow-y: scroll;">
+          <ul style="margin: 10px; padding: 0 20px 20px 10px;">
+            <li>I will treat Forex like a business</li>
+            <li>I never trade when I am tired, upset, rushed, emotional, or need money.</li>
+            <li>I do my chart markup HW at 9 pm every day.</li>
+            <li>I check the market when I get out of bed.</li>
+            <li>I enter the market on the 15 minute time frame.</li>
+            <li>I predict what the market might do, for the purpose of giving myself options, BUT I never anticipate what the market will do. I trade with at least 6-10 confirmations. </li>
+            <li>I always use confirmations to enter and exit a trade</li>
+            <li>I always make my own decisions to enter/exit a trade. (I trust my own analysis)</li>
+            <li>I always start a trade with 0.1 (lot size). I only add to a trade when there are confirmations to scale in. </li>
+            <li>I never trade with more than 10`% of my trading account. </li>
+            <li>I accept losses and move on to the next trade. (Losing is part of trading</li>
+            <li>I record my trades in my trading journal. </li>
+            <li>I take responsibility for my successes and failures in the market. (I do not blame others) </li>
+            <li>I want what the market is willing to give. (No greed or fear) </li>
+            <li></li>
+          </ul>
+          </div>
         </div>
-        <div id="utility" style="border: 1px solid black; width: 450px; height: 30px;">Trading Plan | Trading Check List | Quick Web | Trade Logger</div>
+        <div id="trading-checklist">☑ Check List - 🔄 <hr>
+          <div style="width: 240px; height: 230px;">
+            <ol style="margin: 10px; padding: 0 20px 10px;">
+            <form>
+              <li><div class="tooltip"><input type="checkbox"> Trend<span class="tooltiptext">( multi time frame = overall trend )<br>From monthly to the 4H, is it going up or down. Check them all out & mark it up so you know what's going on over all, then break it down</span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Structure<span class="tooltiptext"></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Candle Pattern<span class="tooltiptext"></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Trend Pattern (opt)<span class="tooltiptext"></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> PRZ Behavior<span class="tooltiptext"></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Fibonacci<span class="tooltiptext"></span></div></li>
+              </form>
+            </ol>
+          </div>
+        </div>
+        <div id="event-watcher"></div>
+        <div style='right: 13px; top: 100px; position: absolute; text-align: center; border: 1px solid black; background-color: #252B3C; color: white; padding: 2px; width: 230px; height: 30px; margin-top: 5px; line-height: 21px'>
+        <ul style="list-style-type: none; margin: 0; padding: 0; line-height: 27px;">
+          <li style="float: left"><a style="display: block; color: white; text-align: center; padding: 2px 16px; text-decoration: none;" href="%MYAPP_PROTOCOL%://refresh/eventwatcher">🔄 Refresh</a></li>
+          <li style="float: left"><a style="display: block; color: white; text-align: center; padding: 2px 16px; text-decoration: none;" href="%MYAPP_PROTOCOL%://setting/eventwatcher">⚙ Setting</a></li>
+        </ul></div>
+        <ul id="utility" style="margin: 0px; padding: 0px; overflow: hidden;">
+          <li><a href="">≡★</a><li>
+          <li><a href="">📝</a><li>
+          <li><a href="">⚖</a><li>
+          <li><a href="">Quip</a><li>
+          <li><a href=""><span style="font-size: 50px; line-height: 32px">🖩</span></a><li>
+        </ul>
 	</body>
 </html>
 )
-WB_Home.Document.Write(home_html)
+WB_Home.Document.Write(home_html . time_html)
 SetTimer, home_info, 1000
+Gui, +ToolWindow
 Gui, Show, w620 h510 y50, Trader Dashboard ™ - © 2017
 UpdateEventWatch(5)
 Sleep 50
@@ -622,9 +735,9 @@ else if A_WDay = 6
 else if A_WDay = 7
   DOTW = Saturday
 if (A_Min != currMin)
-  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent(WB_Home)
+  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent()
 currMin := A_Min
-;~ WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent(WB_Home)
+
 GuiControl,, home_info, %A_MMM%, %A_DD%, %A_YYYY%`n%DOTW%
 FormatTime, home_info_time, , hhmmtt
 GuiControl,, home_info_time, %home_info_time%
@@ -638,9 +751,9 @@ return
 ;	////////////////////////////////////////////
 update_market_hour:
 FormatTime, Label, , hh:mm:ss
-WB_Time.document.getElementById("Label").innerHTML := Label
+WB_Home.document.getElementById("Label").innerHTML := Label
 ; Varibles
-table_width := WB_Time.document.getElementById("market-hour").offsetWidth+10.5
+table_width := WB_Home.document.getElementById("market-hour").offsetWidth+10.5
 hour_pixel := table_width/24
 h := SubStr(A_NowUTC, 9, 2)
 m := SubStr(A_NowUTC,11, 2)
@@ -675,24 +788,24 @@ newyork_close := 20-h . "h " . 60-m . "m"
 ;--------------------------------------------------------------
 ; SYDNEY
 if (h  >= 21 && h <= 23 || h >= 0 && h <= 6)
-  WB_time.document.getElementById("sydney_stat").innerText := "close in " . sydney_close
+  WB_Home.document.getElementById("sydney_stat").innerText := "close in " . sydney_close
 else
-  WB_Time.document.getElementById("sydney_stat").innerText := "open in " . sydney_open
+  WB_Home.document.getElementById("sydney_stat").innerText := "open in " . sydney_open
 ; TOKYO
 if (h >= 22 && h <= 23 || h >= 0 && h <= 7 )
-  WB_time.document.getElementById("tokyo_stat").innerText := "close in " . tokyo_close
+  WB_Home.document.getElementById("tokyo_stat").innerText := "close in " . tokyo_close
 else
-  WB_Time.document.getElementById("tokyo_stat").innerText := "open in " . tokyo_open
+  WB_Home.document.getElementById("tokyo_stat").innerText := "open in " . tokyo_open
 ; LONDON
 if (h >= 7 && h <= 15)
-  WB_time.document.getElementById("london_stat").innerText := "close in " . london_close
+  WB_Home.document.getElementById("london_stat").innerText := "close in " . london_close
 else
-  WB_Time.document.getElementById("london_stat").innerText := "open in " . london_open
+  WB_Home.document.getElementById("london_stat").innerText := "open in " . london_open
 ; NEWYORK
 if (h >= 12 && h <= 20)
-  WB_time.document.getElementById("newyork_stat").innerText := "close in " . newyork_close
+  WB_Home.document.getElementById("newyork_stat").innerText := "close in " . newyork_close
 else
-  WB_Time.document.getElementById("newyork_stat").innerText := "open in " . newyork_open
+  WB_Home.document.getElementById("newyork_stat").innerText := "open in " . newyork_open
 ;off set hour
 if (h >= 21)
   h -= 24
@@ -701,49 +814,49 @@ x_coord := (hour_pixel*h)
 x_coord := x_coord + (hour_pixel*3)
 ; offset minutes
 x_coord := x_coord + (hour_pixel/60)*m
-WB_time.document.getElementById("Mark").style.left := x_coord-5
-WB_Time.document.getElementById("Label").style.left := "11px"
-WB_Time.document.getElementById("Arrow").style.left := "4px"
-WB_Time.document.getElementById("Arrow").style.borderTop := "7px solid transparent"
-WB_Time.document.getElementById("Arrow").style.borderBottom := "7px solid transparent"
-WB_Time.document.getElementById("Arrow").style.borderLeft := ""
-WB_Time.document.getElementById("Arrow").style.borderRight := "7px solid black"
+WB_Home.document.getElementById("Mark").style.left := x_coord-5
+WB_Home.document.getElementById("Label").style.left := "11px"
+WB_Home.document.getElementById("Arrow").style.left := "4px"
+WB_Home.document.getElementById("Arrow").style.borderTop := "7px solid transparent"
+WB_Home.document.getElementById("Arrow").style.borderBottom := "7px solid transparent"
+WB_Home.document.getElementById("Arrow").style.borderLeft := ""
+WB_Home.document.getElementById("Arrow").style.borderRight := "7px solid black"
 if (h >= 17 && h <= 20)
 {
-  WB_Time.document.getElementById("Label").style.left := "-115px"
-  WB_Time.document.getElementById("Arrow").style.left := "-11px"
-  WB_Time.document.getElementById("Arrow").style.borderTop := "7px solid transparent"
-  WB_Time.document.getElementById("Arrow").style.borderBottom := "7px solid transparent"
-  WB_Time.document.getElementById("Arrow").style.borderRight := "7px solid transparent"
-  WB_Time.document.getElementById("Arrow").style.borderLeft := "7px solid black"
+  WB_Home.document.getElementById("Label").style.left := "-115px"
+  WB_Home.document.getElementById("Arrow").style.left := "-11px"
+  WB_Home.document.getElementById("Arrow").style.borderTop := "7px solid transparent"
+  WB_Home.document.getElementById("Arrow").style.borderBottom := "7px solid transparent"
+  WB_Home.document.getElementById("Arrow").style.borderRight := "7px solid transparent"
+  WB_Home.document.getElementById("Arrow").style.borderLeft := "7px solid black"
 }
  ; -- Market Light up --
  ; neutralize number to 0 linear
  h+=3
  if (h >= 1 && h < 10) ; SYDNEY
    Loop 9
-     WB_time.document.getElementById("market-hours-sydney-" . A_Index).style.backgroundColor := "#25d0a3"
+     WB_Home.document.getElementById("market-hours-sydney-" . A_Index).style.backgroundColor := "#25d0a3"
    else
      Loop 9
-       WB_time.document.getElementById("market-hours-sydney-" . A_Index).style.backgroundColor := "#252b3c"
+       WB_Home.document.getElementById("market-hours-sydney-" . A_Index).style.backgroundColor := "#252b3c"
  if (h >= 2 && h < 11) ; TOKYO
    Loop 9
-     WB_time.document.getElementById("market-hours-tokyo-" . A_Index).style.backgroundColor := "#25d0a3"
+     WB_Home.document.getElementById("market-hours-tokyo-" . A_Index).style.backgroundColor := "#25d0a3"
    else
      Loop 9
-       WB_time.document.getElementById("market-hours-tokyo-" . A_Index).style.backgroundColor := "#252b3c"
+       WB_Home.document.getElementById("market-hours-tokyo-" . A_Index).style.backgroundColor := "#252b3c"
  if (h >= 10 && h < 19) ; LONDON
    Loop 9
-     WB_time.document.getElementById("market-hours-london-" . A_Index).style.backgroundColor := "#25d0a3"
+     WB_Home.document.getElementById("market-hours-london-" . A_Index).style.backgroundColor := "#25d0a3"
    else
      Loop 9
-       WB_time.document.getElementById("market-hours-london-" . A_Index).style.backgroundColor := "#252b3c"
+       WB_Home.document.getElementById("market-hours-london-" . A_Index).style.backgroundColor := "#252b3c"
  if (h >= 15 && h < 24) ; NEWYORK
    Loop 9
-     WB_time.document.getElementById("market-hours-newyork-" . A_Index).style.backgroundColor := "#25d0a3"
+     WB_Home.document.getElementById("market-hours-newyork-" . A_Index).style.backgroundColor := "#25d0a3"
    else
      Loop 9
-       WB_time.document.getElementById("market-hours-newyork-" . A_Index).style.backgroundColor := "#252b3c"
+       WB_Home.document.getElementById("market-hours-newyork-" . A_Index).style.backgroundColor := "#252b3c"
 return
 ;	/////////////////////////////////////////////
 ;	///														///
@@ -767,19 +880,33 @@ class WB_Home_events {
 	{
 		WB_Home.Stop() ;blocked all navigation, we want our own stuff happening
 		;parse the url
-		global MYAPP_PROTOCOL, toggle
+		global MYAPP_PROTOCOL, toggle_MonthCal, toggle_Setting
 		if (InStr(NewURL,MYAPP_PROTOCOL "://")==1) { ;if url starts with "myapp://"
 			what := SubStr(NewURL,Strlen(MYAPP_PROTOCOL)+4) ;get stuff after "myapp://"
 			if InStr(what,"toggle/monthcal")
             {
-              toggle := !toggle
-              if toggle
-                GuiControl, Move, MonthCal, x400 y90
+              toggle_MonthCal := !toggle_MonthCal
+              if toggle_MonthCal
+                GuiControl, Move, MonthCal, x410 y85
               else
                 GuiControl, Move, MonthCal, x-400 y-90
             }
 			else if InStr(what,"refresh/eventwatch")
               UpdateEventWatch(5)
+            else if InStr(what,"setting/eventwatch")
+            {
+              toggle_MonthCal := !toggle_MonthCal
+              if toggle_MonthCal
+              {
+                GuiControl,Move, WB_Calendar, x0 y278
+                WB_Calendar.Navigate("https://www.forexfactory.com/calendar.php")
+              }
+              else
+              {
+                GuiControl,Move, WB_Calendar, x-1000 y-500
+                WB.Navigate("about:blank")
+              }
+            }
 		}
 		;else do nothing
 	}
@@ -949,7 +1076,7 @@ findDateCount(month) {
 }
 UpdateEventWatch(amount) {
 cal_txt := getCalendar(WB_Calendar)
-WB_Home.document.GetElementById("event-watcher").innerHTML := "<div style='position: relative; text-align: center; border: 1px solid black; background-color: black; color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'><a href='" . MYAPP_PROTOCOL .  "://refresh/eventwatch'>Refresh</a></div>"
+WB_Home.document.GetElementById("event-watcher").innerHTML := ""
 event_info_num := 0
   Loop, parse, cal_txt, #		; Parse Day seperate by #
   {
@@ -1050,16 +1177,16 @@ event_info_num := 0
       if (event_info_date_MM >= A_MM)
         if (event_info_date_d >= A_DD)
           IfNotInString, event_info_time, :
-        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: left; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_impact_img . event_info_currency . " - " . event_info_time . "</div>"
+        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: left; border: 1px solid black; background-color: #252B3C; color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_impact_img . event_info_currency . " - " . event_info_time . "</div>"
       ; Update Event Watch
       if event_info_until_h >= 0
-        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: left; border: 1px solid black; background-color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_impact_img . event_info_currency . " - " . event_info_until . "</div>"
+        WB_Home.document.GetElementById("event-watcher").innerHTML .= "<div style='position: relative; text-align: left; border: 1px solid black; background-color: #252B3C; color: white; padding: 5px; width: 200px; height: 20px; margin-top: 5px'>" . event_info_impact_img . event_info_currency . " - " . event_info_until . "</div>"
       ; Set UpNextTimer = Event Time - currTime, accurate by seconds
       ;~ here
     }
   }
 }
-countDownEvent(WB_Home) {
+countDownEvent() {
   event_watcher_html := WB_Home.document.getElementById("event-watcher").innerHTML
   StringReplace, event_watcher_html, event_watcher_html, <DIV, †, all
   StringSplit, event_watcher_html_, event_watcher_html, †
@@ -1067,18 +1194,22 @@ countDownEvent(WB_Home) {
   {
     if A_Index = 1
       continue
-    RegExMatch(event_watcher_html_%A_Index%,"white(.*)<IMG",time)
+    ; Assign variables
+    StringLeft, symbol, event_watcher_html_%A_Index%, 3
     RegExMatch(event_watcher_html_%A_Index%,"png(.*)<",symbol)
     RegExMatch(event_watcher_html_%A_Index%,"impact-(.*)png",impact)
-    StringTrimRight, time, time, 4
-    StringTrimLeft, time, time, 7
     StringTrimRight, symbol, symbol, 1
     StringTrimLeft, symbol, symbol, 6
     StringTrimRight, impact, impact, 4 
     StringTrimLeft, impact, impact, 7
     StringReplace, impact, impact, red, High
-    StringReplace, impact, impact, yellow, Medium
-    StringReplace, impact, impact, orange, Low
+    StringReplace, impact, impact, orange, Medium
+    StringReplace, impact, impact, yellow, Low
+    StringSplit, symbol_, symbol, -
+    symbol := symbol_1
+    time := symbol_2
+    StringTrimLeft, time, time, 1
+    StringTrimRight, symbol, symbol, 1
     var := SubStr(time,1,1) 
     if var is number
     {
@@ -1094,7 +1225,7 @@ countDownEvent(WB_Home) {
         time_h-=1   ;Hour
         time_m+=60
       }
-      StringReplace, event_watcher_html_%A_Index%, event_watcher_html_%A_Index%,white">%time_1%h %time_2%m, white">%time_h%h %time_m%m
+      StringReplace, event_watcher_html_%A_Index%, event_watcher_html_%A_Index%,%symbol% - %time_1%h %time_2%m, %symbol% - %time_h%h %time_m%m
       if (time_m >= 0 && time_h >= 0)
         new_Event_watcher_html .= "<DIV " . event_watcher_html_%A_Index%
       ; 5 minute notify
@@ -1106,7 +1237,7 @@ countDownEvent(WB_Home) {
   }
   return new_Event_watcher_html
 }
-F2::  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent(WB_Home)
+;~ F2::  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent()
 GuiClose:
 F5::
 ExitApp
