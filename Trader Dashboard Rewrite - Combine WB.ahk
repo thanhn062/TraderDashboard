@@ -2,6 +2,7 @@
 ; #Warn  ; Enable warnings to assist with detecting common errors.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
+#NoTrayIcon
 SetBatchLines, -1
 global WB_Calendar, WB_Home, MYAPP_PROTOCOL
 ;	/////////////////////////////////////////////
@@ -35,7 +36,7 @@ WB_Calendar.Navigate("about:blank")
 WB_Home.Navigate("about:blank")
 WB_Calendar.silent := true
 WB_Home.silent := true
-SetTimer, update_market_hour, 
+SetTimer, update_market_hour, 1000
 ;	/////////////////////////////////////////////
 ;	///			MARKET HOUR HTML			///
 ;	////////////////////////////////////////////
@@ -369,11 +370,11 @@ home_html =
           left: 15px;
           top: 10px;
           border: 1px solid black; 
-          width: 485px; 
-          height: 40px;
+          width: 495px; 
+          height: 45px;
           background-color: #252B3C; 
           color: white;
-          font-size: 30px
+          font-size: 30px;
         }
         #event-watcher {
           position: absolute;
@@ -421,6 +422,7 @@ home_html =
           border-collapse: collapse;
           bottom: 0;
           right: 0;
+          z-index: -1;
         }
         #market-hours-mark {
           border-top: 1px solid #white;
@@ -452,7 +454,7 @@ home_html =
         bottom: 0px;
         left: -120px;
         width: 0;
-        z-index: 1;
+        z-index: -1;
       }
       #Mark #Arrow {
         content: '';
@@ -465,7 +467,7 @@ home_html =
         border-bottom: 7px solid transparent;
         border-right: 7px solid black;
         clear: both;
-        z-index: 3;
+        z-index: -1;
       }
       #Mark #Label {
         text-align: center;
@@ -476,7 +478,7 @@ home_html =
         position: absolute;
         top:  109px;
         left: 11px;
-        z-index: 19;
+        z-index: -1;
         padding: 2px;
         font-size: 18px;
         width: 98px;
@@ -491,7 +493,7 @@ home_html =
         bottom: 0px;
         left: -120px;
         width: 0;
-        z-index: 2;
+        z-index: -1;
       }
       #Mark_hover #Arrow_hover {
         content: '';
@@ -504,7 +506,7 @@ home_html =
         border-bottom: 7px solid transparent;
         border-right: 7px solid black;
         clear: both;
-        z-index: 3;
+        z-index: -1;
       }
       #Mark_hover #Label_hover {
         text-align: center;
@@ -515,7 +517,7 @@ home_html =
         position: absolute;
         top:  109px;
         left: 11px;
-        z-index: 19;
+        z-index: -1;
         padding: 2px;
         font-size: 18px;
         width: 98px;
@@ -581,25 +583,91 @@ home_html =
           position: relative;
           display: inline-block;
       }
-
       .tooltip .tooltiptext {
           visibility: hidden;
-          left: -285px;
-          top: 0px;
-          width: 230px;
+          left: -295px;
+          top: -20px;
+          width: 235px;
           background-color: #fff;
           color: black;
           text-align: left;
-          border-radius: 6px;
           padding: 10px 10px;
-          border: 1px solid black;
+          border: 2px solid white;
           /* Position the tooltip */
           position: absolute;
           z-index: 1;
       }
-
+      .tooltip-arrow {
+      position: absolute;
+      width: 0; 
+      height: 0; 
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 10px solid white;
+      left: 255px;
+      top: 20px;
+      }
       .tooltip:hover .tooltiptext {
           visibility: visible;
+      }
+      a img {
+      border: 0;
+      }
+      /*
+      ////////////////////////////////////
+      ///           Menu TOOL TIP           ///
+      ////////////////////////////////////
+      */
+      .menu-tooltip {
+          position: relative;
+          display: inline-block;
+      }
+      .menu-tooltip .tooltiptext {
+          visibility: hidden;
+          left: 0;
+          top: 60px;
+          width: 125px;
+          background-color: #fff;
+          color: black;
+          text-align: left;
+          padding: 5px 5px;
+          border: 2px solid white;
+          /* Position the tooltip */
+          position: absolute;
+          z-index: 1;
+          font-size: 20px;
+          text-align: center;
+      }
+      .menu-tooltip .menu {
+          visibility: hidden;
+          left: 0px;
+          top: 45px;
+          width: 150px;
+          background-color: #fff;
+          color: black;
+          text-align: left;
+          padding: 5px 5px;
+          border: 2px solid white;
+          /* Position the tooltip */
+          position: absolute;
+          z-index: 1;
+          font-size: 20px;
+      }
+      .menu-tooltip-arrow {
+      position: absolute;
+      width: 0; 
+      height: 0; 
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid white;
+      left:  10px;
+      top: -12px;
+      }
+      .menu-tooltip:hover .tooltiptext {
+          visibility: visible;
+      }
+      .menu-tooltip:hover .menu {
+        visibility: visible;
       }
 	</style>
 </head>
@@ -626,7 +694,8 @@ home_html =
         <div id="trading-plan">📜 Trading Plan<hr>
         <div style="width: 240px; height: 230px; overflow-y: scroll;">
           <ul style="margin: 10px; padding: 0 20px 20px 10px;">
-            <li>I will treat Forex like a business</li>
+            <li>I will treat Forex like a business.</li>
+            <li>I will base my trade off 4H & higher time frame.</li>
             <li>I never trade when I am tired, upset, rushed, emotional, or need money.</li>
             <li>I do my chart markup HW at 9 pm every day.</li>
             <li>I check the market when I get out of bed.</li>
@@ -640,43 +709,44 @@ home_html =
             <li>I record my trades in my trading journal. </li>
             <li>I take responsibility for my successes and failures in the market. (I do not blame others) </li>
             <li>I want what the market is willing to give. (No greed or fear) </li>
-            <li></li>
           </ul>
           </div>
         </div>
-        <div id="trading-checklist">☑ Check List - 🔄 <hr>
+        <div id="trading-checklist">☑ Check List - <a href="%MYAPP_PROTOCOL%://refresh/checklist">🔄</a> <hr>
           <div style="width: 240px; height: 230px;">
             <ol style="margin: 10px; padding: 0 20px 10px;">
             <form>
-              <li><div class="tooltip"><input type="checkbox"> Trend<span class="tooltiptext">( multi time frame = overall trend )<br>From monthly to the 4H, is it going up or down. Check them all out & mark it up so you know what's going on over all, then break it down</span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Structure<span class="tooltiptext"></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Candle Pattern<span class="tooltiptext"></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Trend Pattern (opt)<span class="tooltiptext"></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> PRZ Behavior<span class="tooltiptext"></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Fibonacci<span class="tooltiptext"></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Trend<span class="tooltiptext"><div class="tooltip-arrow"></div>( multi time frame = overall trend )<br>From monthly to the 4H, is it going up or down. Check them all out IE "1M⇧ 1W⇧ 1D⇧ 4H⇧" & mark it up so you know what's going on over all, then break it down.<br>And yes it'd be better to mark every time frame individually so you got a good grasp of everything happpening if the 4H is going down currently but all the higher timeframes are going up something's wrong.</span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Structure<span class="tooltiptext">Is it making HH or LH, if it keeps up with structure it should NEVER break a high or low in the opposite direction if it does then structure is officially broken.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Candle Pattern<span class="tooltiptext">A lot of the time we aim to look for engulfings but we forget the fact that you could easily tell a reversal from wicks that is essential the market putting the brakes on and slowing down to the opposite site ot either retest or change direction.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Trend Pattern (opt)<span class="tooltiptext">Meaning if you make a channel with the trend line to see higher highs and lower highs where is it headed on the channel did it just hit the top or bottom ? If overall structure is held you should be able to predict higher lows and lower highs.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> PRZ Behavior<span class="tooltiptext">When price gets to prz what's going on ? Is it showing rejection, is it showing power & breaking? What time frame PRZ is it at,4H, Daily, Weekly, or Monthly, and how did it react.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Fibonacci<span class="tooltiptext">Where is it at currently on fibs where was the past low or high compared to where it's at currently? Does it line up with PRZ and structure and previous price?<div class="tooltip-arrow"></div></span></div></li>
               </form>
             </ol>
           </div>
         </div>
         <div id="event-watcher"></div>
-        <div style='right: 13px; top: 100px; position: absolute; text-align: center; border: 1px solid black; background-color: #252B3C; color: white; padding: 2px; width: 230px; height: 30px; margin-top: 5px; line-height: 21px'>
+        <div style='right: 13px; top: 100px; position: absolute; text-align: center; border: 1px solid black; background-color: #252B3C; color: white; padding: 2px; width: 230px; height: 30px; margin-top: 5px;'>
         <ul style="list-style-type: none; margin: 0; padding: 0; line-height: 27px;">
           <li style="float: left"><a style="display: block; color: white; text-align: center; padding: 2px 16px; text-decoration: none;" href="%MYAPP_PROTOCOL%://refresh/eventwatcher">🔄 Refresh</a></li>
           <li style="float: left"><a style="display: block; color: white; text-align: center; padding: 2px 16px; text-decoration: none;" href="%MYAPP_PROTOCOL%://setting/eventwatcher">⚙ Setting</a></li>
         </ul></div>
-        <ul id="utility" style="margin: 0px; padding: 0px; overflow: hidden;">
-          <li><a href="">≡★</a><li>
-          <li><a href="">📝</a><li>
-          <li><a href="">⚖</a><li>
-          <li><a href="">Quip</a><li>
-          <li><a href=""><span style="font-size: 50px; line-height: 32px">🖩</span></a><li>
+        <ul id="utility" style="margin: 0px; padding: 0px;">
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://" style="line-height: 42px;">≡</a><span class="menu"><a style="color: black" href="%MYAPP_PROTOCOL%://run/myfxbook">📓 MyFxBook</a><hr>⌛ Menu 2</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://" style="font-size: 20px; height: 40px">▶</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Start Trading</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/tradelogger">📝</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Trade Logger</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/terminal">⚖</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Trade Terminal</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/quip"><img width="42" height="42" src="%A_ScriptDir%/pic/quip.png"></a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Quip</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/tradingview"><img width="42" height="42" src="%A_ScriptDir%/pic/tradingview.png"></a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Tradingview</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/calculator"><span style="font-size: 50px; line-height: 42px">🖩</span></a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Calculator</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/setting">🛠</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Setting</span></div></li>
         </ul>
 	</body>
 </html>
 )
 WB_Home.Document.Write(home_html . time_html)
-SetTimer, home_info, 1000
-Gui, +ToolWindow
+Gui, +ToolWindow +AlwaysOnTop
 Gui, Show, w620 h510 y50, Trader Dashboard ™ - © 2017
 UpdateEventWatch(5)
 Sleep 50
@@ -716,35 +786,7 @@ If Time_Hour < 10
 
 ;~ GuiControl,, ClockTime, %Display_Hour%:%Display_Minute%:%Display_Second%
 return
-;	/////////////////////////////////////////////
-;	///		CLOCK & DATE UPDATE			///
-;	////////////////////////////////////////////
-home_info:
-If A_WDay = 1
-  DOTW = Sunday
-else if A_WDay = 2
-  DOTW = Monday
-else if A_WDay = 3
-  DOTW = Tuesday
-else if A_WDay = 4
-  DOTW = Wednesday
-else if A_WDay = 5
-  DOTW = Thursday
-else if A_WDay = 6
-  DOTW = Friday
-else if A_WDay = 7
-  DOTW = Saturday
-if (A_Min != currMin)
-  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent()
-currMin := A_Min
 
-GuiControl,, home_info, %A_MMM%, %A_DD%, %A_YYYY%`n%DOTW%
-FormatTime, home_info_time, , hhmmtt
-GuiControl,, home_info_time, %home_info_time%
-StringSplit, home_info_time_, home_info_time
-Loop 6
-	WB_Home.document.getElementById("time_display_" . A_Index).innerHTML := home_info_time_%A_Index%
-WB_Home.document.getElementById("currDate").innerHTML := "<a href='" . MYAPP_PROTOCOL . "://toggle/monthcal'>" . DOTW . ", " .  A_MMM .  ", " . A_DD . ", " . A_YYYY . "</a>"
 return
 ;	/////////////////////////////////////////////
 ;	///		UPDATE MARKET TIMELINE	///
@@ -765,6 +807,7 @@ if m = 0
 sydney_open := 21-h . "h " . 60-m . "m"
 if h >= 21
   sydney_close := 6-(h-23) . "h " . 60-m . "m"
+  ;~ sydney_close := 6-(h-23) . "h " . 60-m . "m" HERE
 else
   sydney_close := 6-h . "h " . 60-m . "m"
 ; TOKYO
@@ -857,6 +900,34 @@ if (h >= 17 && h <= 20)
    else
      Loop 9
        WB_Home.document.getElementById("market-hours-newyork-" . A_Index).style.backgroundColor := "#252b3c"
+;	/////////////////////////////////////////////
+;	///		CLOCK & DATE UPDATE			///
+;	////////////////////////////////////////////
+If A_WDay = 1
+  DOTW = Sunday
+else if A_WDay = 2
+  DOTW = Monday
+else if A_WDay = 3
+  DOTW = Tuesday
+else if A_WDay = 4
+  DOTW = Wednesday
+else if A_WDay = 5
+  DOTW = Thursday
+else if A_WDay = 6
+  DOTW = Friday
+else if A_WDay = 7
+  DOTW = Saturday
+if (A_Min != currMin)
+  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent()
+currMin := A_Min
+
+GuiControl,, home_info, %A_MMM%, %A_DD%, %A_YYYY%`n%DOTW%
+FormatTime, home_info_time, , hhmmtt
+GuiControl,, home_info_time, %home_info_time%
+StringSplit, home_info_time_, home_info_time
+Loop 6
+	WB_Home.document.getElementById("time_display_" . A_Index).innerHTML := home_info_time_%A_Index%
+WB_Home.document.getElementById("currDate").innerHTML := "<a href='" . MYAPP_PROTOCOL . "://toggle/monthcal'>" . DOTW . ", " .  A_MMM .  ", " . A_DD . ", " . A_YYYY . "</a>"
 return
 ;	/////////////////////////////////////////////
 ;	///														///
@@ -906,6 +977,40 @@ class WB_Home_events {
                 GuiControl,Move, WB_Calendar, x-1000 y-500
                 WB.Navigate("about:blank")
               }
+            }
+            else if InStr(what,"refresh/checklist")
+            {
+              checklist_html =
+              (Ltrim Join
+          ☑ Check List - <a href="%MYAPP_PROTOCOL%://refresh/checklist">🔄</a> <hr>
+          <div style="width: 240px; height: 230px;">
+            <ol style="margin: 10px; padding: 0 20px 10px;">
+            <form>
+              <li><div class="tooltip"><input type="checkbox"> Trend<span class="tooltiptext"><div class="tooltip-arrow"></div>( multi time frame = overall trend )<br>From monthly to the 4H, is it going up or down. Check them all out & mark it up so you know what's going on over all, then break it down</span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Structure<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Candle Pattern<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Trend Pattern (opt)<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> PRZ Behavior<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Fibonacci<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
+              </form>
+            </ol>
+          </div>
+              )
+              WB_Home.document.getElementById("trading-checklist").innerHTML := checklist_html
+            }
+            else if InStr(what,"run")
+            {
+              StringSplit, temp_, what, /
+              if temp_2 = tradelogger
+                Run Trade Logger.ahk
+              else if temp_2 = terminal
+                Run C:\Program Files (x86)\LMFX MetaTrader 4 Terminal\terminal.exe
+              else if temp_2 = quip
+                Run C:\Users\510th\AppData\Local\Quip\Update.exe --processStart "Quip.exe"
+              else if temp_2 = tradingview
+                Run chrome.exe https://www.tradingview.com/chart/2LEk6KYk/
+              else if temp_2 = myfxbook
+                Run chrome.exe https://www.myfxbook.com/portfolio/traders-way/2302561
             }
 		}
 		;else do nothing
@@ -1238,6 +1343,19 @@ countDownEvent() {
   return new_Event_watcher_html
 }
 ;~ F2::  WB_Home.document.getElementById("event-watcher").innerHTML := countDownEvent()
+; Hotkey for multiple time frame analyse
+^Up::Send ⇧
+^Down::Send ⇩
+^Left::Send  ⇘
+^Right::Send  ⇗
+~Up & Down::Send ⇨
+Shift & Tab::
+toggle_Show := !toggle_Show
+if toggle_Show
+  Gui, Hide
+else
+  Gui, Show
+return
 GuiClose:
 F5::
 ExitApp
