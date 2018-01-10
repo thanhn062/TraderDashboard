@@ -695,6 +695,8 @@ home_html =
         <div style="width: 240px; height: 230px; overflow-y: scroll;">
           <ul style="margin: 10px; padding: 0 20px 20px 10px;">
             <li>I will treat Forex like a business.</li>
+            <li>I will focus on trading.</li>
+            <li>I will trade it like it's my last shot.</li>
             <li>I will base my trade off 4H & higher time frame.</li>
             <li>I never trade when I am tired, upset, rushed, emotional, or need money.</li>
             <li>I do my chart markup HW at 9 pm every day.</li>
@@ -733,9 +735,10 @@ home_html =
           <li style="float: left"><a style="display: block; color: white; text-align: center; padding: 2px 16px; text-decoration: none;" href="%MYAPP_PROTOCOL%://setting/eventwatcher">⚙ Setting</a></li>
         </ul></div>
         <ul id="utility" style="margin: 0px; padding: 0px;">
-          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://" style="line-height: 42px;">≡</a><span class="menu"><a style="color: black" href="%MYAPP_PROTOCOL%://run/myfxbook">📓 MyFxBook</a><hr>⌛ Menu 2</span></div><li>
+          <!-- <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://" style="line-height: 42px;">≡</a><span class="menu"><a style="color: black" href="%MYAPP_PROTOCOL%://run/myfxbook">📓 MyFxBook</a><hr>⌛ Menu 2</span></div><li> -->
           <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://" style="font-size: 20px; height: 40px">▶</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Start Trading</span></div><li>
-          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/tradelogger">📝</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Trade Logger</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://" style="font-size: 20px; height: 40px">📓 </a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>MyFxBook</span></div><li>
+          <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/tradelogger" style="width: 25px; font-size: 30px">📝</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Trade Logger</span></div><li>
           <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/terminal">⚖</a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Trade Terminal</span></div><li>
           <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/quip"><img width="42" height="42" src="%A_ScriptDir%/pic/quip.png"></a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Quip</span></div><li>
           <li><div class="menu-tooltip"><a href="%MYAPP_PROTOCOL%://run/tradingview"><img width="42" height="42" src="%A_ScriptDir%/pic/tradingview.png"></a><span class="tooltiptext"><div class="menu-tooltip-arrow"></div>Tradingview</span></div><li>
@@ -986,12 +989,12 @@ class WB_Home_events {
           <div style="width: 240px; height: 230px;">
             <ol style="margin: 10px; padding: 0 20px 10px;">
             <form>
-              <li><div class="tooltip"><input type="checkbox"> Trend<span class="tooltiptext"><div class="tooltip-arrow"></div>( multi time frame = overall trend )<br>From monthly to the 4H, is it going up or down. Check them all out & mark it up so you know what's going on over all, then break it down</span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Structure<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Candle Pattern<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Trend Pattern (opt)<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> PRZ Behavior<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
-              <li><div class="tooltip"><input type="checkbox"> Fibonacci<span class="tooltiptext"><div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Trend<span class="tooltiptext"><div class="tooltip-arrow"></div>( multi time frame = overall trend )<br>From monthly to the 4H, is it going up or down. Check them all out IE "1M⇧ 1W⇧ 1D⇧ 4H⇧" & mark it up so you know what's going on over all, then break it down.<br>And yes it'd be better to mark every time frame individually so you got a good grasp of everything happpening if the 4H is going down currently but all the higher timeframes are going up something's wrong.</span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Structure<span class="tooltiptext">Is it making HH or LH, if it keeps up with structure it should NEVER break a high or low in the opposite direction if it does then structure is officially broken.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Candle Pattern<span class="tooltiptext">A lot of the time we aim to look for engulfings but we forget the fact that you could easily tell a reversal from wicks that is essential the market putting the brakes on and slowing down to the opposite site ot either retest or change direction.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Trend Pattern (opt)<span class="tooltiptext">Meaning if you make a channel with the trend line to see higher highs and lower highs where is it headed on the channel did it just hit the top or bottom ? If overall structure is held you should be able to predict higher lows and lower highs.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> PRZ Behavior<span class="tooltiptext">When price gets to prz what's going on ? Is it showing rejection, is it showing power & breaking? What time frame PRZ is it at,4H, Daily, Weekly, or Monthly, and how did it react.<div class="tooltip-arrow"></div></span></div></li>
+              <li><div class="tooltip"><input type="checkbox"> Fibonacci<span class="tooltiptext">Where is it at currently on fibs where was the past low or high compared to where it's at currently? Does it line up with PRZ and structure and previous price?<div class="tooltip-arrow"></div></span></div></li>
               </form>
             </ol>
           </div>

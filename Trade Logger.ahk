@@ -130,59 +130,59 @@ else ; not on same date
 return
 ^!v::
 Send %openDate%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %closeDate%
-Sleep 100
+sleep 500
 Send {Right} 
-Sleep 100
+sleep 500
 Send %duration%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %action%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %lotSize%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %symbol%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %openPrice%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %closePrice%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %sl%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %tp%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %profit%
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send {Right}
-Sleep 100
+sleep 500
 Send %pips%
 return
 select:
@@ -258,14 +258,14 @@ getXML(type,WB) {
 		session_num := getXMLVal("session",XML)
 	XML =
 	WB.Navigate("about:blank")
-	Sleep 100
+	sleep 100
 	if (type == "history")
 	{
 		WB.Navigate("https://www.myfxbook.com/api/get-history.xml?session=" . session_num . "&id=2302561")
 		while wb.ReadyState <> 4
 			continue
 		WB.Refresh()
-		Sleep 100
+		sleep 100
 		while !XML
 			XML := WB.document.documentElement.innerText
 	}
